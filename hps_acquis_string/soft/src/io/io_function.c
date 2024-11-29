@@ -22,7 +22,7 @@
  * 1.0    6 oct 24    pedro.alvesdas    First version
 *****************************************************************************************/
 
-#include "../io/io_function.h"
+#include "io_function.h"
 
 #include <stdio.h>
 #include <stdbool.h>
