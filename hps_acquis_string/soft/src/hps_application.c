@@ -24,8 +24,10 @@
 *****************************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "axi_lw.h"
+#include "io/io_function.h"
 
 int __auto_semihosting;
 
@@ -33,7 +35,19 @@ int __auto_semihosting;
 int main(void){
     
     printf("Laboratoire: Conception d'une interface évoluée \n");
+    printf("Design standard ID: %08X", AXI_LW_CONST_REG);
+    printf("Interface ID: %08X", AXI_HPS_LABO_REG(ARE_PW5_INTERFACE_ADDR));
     
-    // TO BE COMPLETE
+    /*
+     * Init I/O
+     */
+    Keys_init();
+    Switchs_init();
+    Leds_init();
 
+    /*
+     * Main program
+     */
+
+    return EXIT_SUCCESS;
 }
