@@ -124,18 +124,26 @@ ARCHITECTURE rtl OF avl_user_interface IS
   SIGNAL new_char_s : STD_LOGIC;
   SIGNAL init_char_s : STD_LOGIC;
 
+  SIGNAL readdatavalid_next_s : STD_LOGIC;
+  SIGNAL readdatavalid_reg_s : STD_LOGIC;
+  SIGNAL readdata_next_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL readdata_reg_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
   SIGNAL boutton_s : STD_LOGIC_VECTOR(3 DOWNTO 0);
   SIGNAL switches_s : STD_LOGIC_VECTOR(9 DOWNTO 0);
 BEGIN
 
   -- Input signals
 
-  boutton_s <= boutton_i;
+  boutton_s <= button_i;
   switches_s <= switch_i;
 
   -- Output signals
 
   led_o <= led_reg_s;
+
+  avl_readdatavalid_o <= readdatavalid_reg_s;
+  avl_readdata_o <= readdata_reg_s;
 
   -- Read access part
   -- Read register process
@@ -197,7 +205,7 @@ BEGIN
           readdata_next_s(31 DOWNTO 24) <= char_13_s;
 
         WHEN CHECKSUM_ADDRESS =>
-          readdata_next_s <= checksum_s;
+          readdata_next_s(7 DOWNTO 0) <= checksum_s;
 
         WHEN OTHERS =>
           readdata_next_s <= OTHERS_VAL_C;
@@ -236,12 +244,12 @@ BEGIN
     IF avl_reset_i = '1' THEN
 
       led_reg_s <= (OTHERS => '0');
-      lp36_data_reg_s <= (OTHERS => '0');
-      lp36_sel_reg_s <= (OTHERS => '0');
+      new_char_s <= '0';
+      init_char_s <= '0';
+      mode_gen_s <= '0';
+      delay_gen_s <= (OTHERS => '0');
 
     ELSIF rising_edge(avl_clk_i) THEN
-
-      cs_wr_lp36_data_s <= '0';
 
       IF avl_write_i = '1' THEN
 
