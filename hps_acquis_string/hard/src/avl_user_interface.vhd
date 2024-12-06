@@ -250,6 +250,9 @@ BEGIN
       delay_gen_s <= (OTHERS => '0');
 
     ELSIF rising_edge(avl_clk_i) THEN
+	 
+	 new_char_s <= '0';
+	 init_char_s <= '0';
 
       IF avl_write_i = '1' THEN
 
