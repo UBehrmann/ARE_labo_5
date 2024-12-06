@@ -209,13 +209,13 @@ int main(void){
         	/* Check if we need to change the generation frequency */
     		if(switches_diff & ARE_PW5_FREQ_SWITCHES_MASK)
     		{
-                are_pw5_gen_set_freq_and_mode(curr_switches_state && ARE_PW5_FREQ_SWITCHES_MASK, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
+                are_pw5_gen_set_freq_and_mode((curr_switches_state & ARE_PW5_MODE_SWITCHES_MASK) >> 8, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
     		} /* if */
 
     		/* Does the mode need to change? */
     		if(switches_diff & ARE_PW5_MODE_SWITCHES_MASK)
     		{
-                are_pw5_gen_set_freq_and_mode(curr_switches_state && ARE_PW5_FREQ_SWITCHES_MASK, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
+                are_pw5_gen_set_freq_and_mode((curr_switches_state & ARE_PW5_MODE_SWITCHES_MASK) >> 8, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
     		} /* if */
 
     		/* What about the trustworthy reading operations? (Part II) */
