@@ -15,7 +15,7 @@
 #define ARE_PW5_FREQ_SWITCHES_MASK		((0b11) << ARE_PW5_FREQ_SWITCHES_OFFSET)
 
 #define ARE_PW5_MODE_SWITCHES_OFFSET	(7u)
-#define ARE_PW5_MODE_SWITCHES_MASK		0x300 // ((0b1) << ARE_PW5_MODE_SWITCHES_OFFSET)
+#define ARE_PW5_MODE_SWITCHES_MASK		((0b1) << ARE_PW5_MODE_SWITCHES_OFFSET)
 
 #define ARE_PW5_TRUSTY_SWITCHES_OFFSET	(0u)	/* Part II */
 #define ARE_PW5_TRUSTY_SWITCHES_MASK	(0b1)	/* Part II */
@@ -57,10 +57,12 @@
 #define ARE_PW5_INIT_CHAR_MASK			(1u)
 #define ARE_PW5_NEW_CHAR_ADDR			ARE_PW5_STATUS_ADDR
 #define ARE_PW5_NEW_CHAR_MASK			(1u << 4u)
+#define ARE_PW5_STABLE_READ_REQ_ADDR	(0x18)
+#define ARE_PW5_STABLE_READ_REQ_MASK	(0b1)
 
 
 /***************************
- * Characeters (RO)
+ * Characters (RO)
  ***************************/
 
 #define ARE_PW5_CHAR_0_OFFSET			(0x00u)
@@ -76,6 +78,10 @@
 #define ARE_PW5_CHECKSUM_ADDR			(0x30)
 #define ARE_PW5_CHECKSUM_OFFSET			(0x00)
 #define ARE_PW5_CHECKSUM_MASK			(0xFF << ARE_PW5_CHECKSUM_OFFSET)
+
+#define ARE_PW5_CHARS_BLOCKS			(4u)
+#define ARE_PW5_CHARS_PER_ADDR			(4u)
+#define ARE_PW5_CHARS_NUMBER			(16u)
 
 
 /***************************
@@ -101,12 +107,14 @@ void are_pw5_gen_set_mode
 );
 
 /**
- * Disables or enables the trustworthy read operations ("acquisition faible" or "forte")
+ * Reads the characters as sent by the board
  * \param enable When 1, enables that mode. Disables if 0
  */
-void are_pw5_gen_enable_trusty
+void are_pw5_gen_read
 (
-	uint32_t enable
+	char  characters[ARE_PW5_CHARS_NUMBER],
+	char* checksum,
+	int   trustworthy_mode
 );
 
 

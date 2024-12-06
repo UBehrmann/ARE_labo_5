@@ -22,6 +22,8 @@
  * 1.0    6 oct 24    pedro.alvesdas    First version
 *****************************************************************************************/
 
+#include <stdlib.h>
+#include <string.h>
 #include "gen_function.h"
 #include "../axi_lw.h"
 
@@ -31,7 +33,9 @@ void are_pw5_gen_set_freq
 	uint32_t new_frequency
 )
 {
-	AXI_HPS_LABO_REG(ARE_PW5_DELAY_ADDR) = (new_frequency << ARE_PW5_DELAY_OFFSET) & ARE_PW5_DELAY_MASK;
+	int prev_value = AXI_HPS_LABO_REG(ARE_PW5_DELAY_ADDR) & ~ARE_PW5_DELAY_MASK;
+	prev_value |= (new_frequency << ARE_PW5_DELAY_OFFSET) & ARE_PW5_DELAY_MASK;
+	AXI_HPS_LABO_REG(ARE_PW5_DELAY_ADDR) = prev_value;
 } /* are_pw5_gen_set_freq */
 
 
@@ -40,24 +44,40 @@ void are_pw5_gen_set_mode
 	uint32_t new_mode
 )
 {
-	AXI_HPS_LABO_REG(ARE_PW5_MODE_ADDR) = (new_mode << ARE_PW5_MODE_OFFSET) & ARE_PW5_MODE_MASK;
+	/* Erase bits that about to be written */
+	int prev_value = AXI_HPS_LABO_REG(ARE_PW5_MODE_ADDR) & ~ARE_PW5_MODE_MASK;
+	prev_value |= (new_mode << ARE_PW5_MODE_OFFSET) & ARE_PW5_MODE_MASK;
+	AXI_HPS_LABO_REG(ARE_PW5_MODE_ADDR) = prev_value;
 } /* are_pw5_gen_set_mode */
 
-void are_pw5_gen_set_freq_and_mode
+
+void are_pw5_gen_read
 (
-	uint32_t new_frequency,
-	uint32_t new_mode
+	char  characters[ARE_PW5_CHARS_NUMBER],
+	char* checksum,
+	int   trustworthy_mode
 )
 {
-	AXI_HPS_LABO_REG(ARE_PW5_DELAY_ADDR) = (new_frequency << ARE_PW5_DELAY_OFFSET) & ARE_PW5_DELAY_MASK;
-	AXI_HPS_LABO_REG(ARE_PW5_MODE_ADDR) |= (new_mode << ARE_PW5_MODE_OFFSET) & ARE_PW5_MODE_MASK;
-} /* are_pw5_gen_set_freq_and_mode */
+	/* Wait for a valid read to be possible in this mode */
+	if(trustworthy_mode)
+	{
+		AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR) = ARE_PW5_STABLE_READ_REQ_MASK;
+		while((AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR) & ARE_PW5_STABLE_READ_REQ_MASK) != ARE_PW5_STABLE_READ_REQ_MASK)
+		{
+			/* Wait */
+		}
+	} /* if */
 
+	/* Read characters */
+	const size_t base_char_offset = (ARE_PW5_CHARS_PER_ADDR - 1) * 8;
+	for(size_t i = 0; i < ARE_PW5_CHARS_BLOCKS ; ++i)
+	{
+		uint32_t char_block = AXI_HPS_LABO_REG(ARE_PW5_CHARS_0_ADDR + i * sizeof(uint32_t));
+		for(size_t j = 0; j < ARE_PW5_CHARS_PER_ADDR ; ++j)
+		{
+			characters[i * ARE_PW5_CHARS_PER_ADDR + j] = char_block >> (base_char_offset - j * 8) & 0xFF;
+		} /* for */
+	} /* for */
 
-void are_pw5_gen_enable_trusty
-(
-	uint32_t enable
-)
-{
-
-} /* are_pw5_gen_enable_trusty */
+	*checksum = AXI_HPS_LABO_REG(ARE_PW5_CHECKSUM_ADDR);
+} /* are_pw5_gen_read */
