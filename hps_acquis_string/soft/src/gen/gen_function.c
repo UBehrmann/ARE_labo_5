@@ -54,15 +54,15 @@ void are_pw5_gen_set_mode
 void are_pw5_gen_read
 (
 	char  characters[ARE_PW5_CHARS_NUMBER],
-	char* checksum,
-	int   trustworthy_mode
+	char* checksum
 )
 {
-	/* Wait for a valid read to be possible in this mode */
-	if(trustworthy_mode)
+	/* Board is in a trusty mode (reads are guaranteed to be correct) */
+	if(ARE_PW5_STATUS_TRUSTY == (AXI_HPS_LABO_REG(ARE_PW5_STATUS_TRUSTY) & ARE_PW5_STATUS_MASK))
 	{
+		/* Request snapshot, and wait until it's available */
 		AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR) = ARE_PW5_STABLE_READ_REQ_MASK;
-		while((AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR) & ARE_PW5_STABLE_READ_REQ_MASK) != ARE_PW5_STABLE_READ_REQ_MASK)
+		while(ARE_PW5_STATUS_SNAPSHOT != (AXI_HPS_LABO_REG(ARE_PW5_STATUS_TRUSTY) & ARE_PW5_STATUS_MASK))
 		{
 			/* Wait */
 		}

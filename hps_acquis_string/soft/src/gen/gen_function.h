@@ -28,6 +28,8 @@
 #define ARE_PW5_STATUS_ADDR				(0x10)
 #define ARE_PW5_STATUS_OFFSET			(0x00)
 #define ARE_PW5_STATUS_MASK				(0x00000003 << ARE_PW5_STATUS_OFFSET)
+#define ARE_PW5_STATUS_TRUSTY			(0b10 << ARE_PW5_STATUS_MASK)
+#define ARE_PW5_STATUS_SNAPSHOT			(0b01 << ARE_PW5_STATUS_MASK)
 
 
 /***************************
@@ -113,8 +115,7 @@ void are_pw5_gen_set_mode
 void are_pw5_gen_read
 (
 	char  characters[ARE_PW5_CHARS_NUMBER],
-	char* checksum,
-	int   trustworthy_mode
+	char* checksum
 );
 
 

@@ -73,7 +73,6 @@ typedef struct
  * Global variables
  ***************************/
 
-static int trustworthy_mode = 0;
 static int error_count = 0;
 
 
@@ -104,7 +103,7 @@ void key2_press_handler(void)
     char checksum_char = 0;
     char characters[ARE_PW5_CHARS_NUMBER] = {0};
 
-    are_pw5_gen_read(characters, &checksum_char, trustworthy_mode);
+    are_pw5_gen_read(characters, &checksum_char);
 
     // Verify checksum : (char_1 + char_2 + ... + char_16 + checksum) modulo 256 = 0
     int calcul_integrity = 0;
@@ -120,12 +119,12 @@ void key2_press_handler(void)
 
     if(checksum_ok){
         // OK : status: X , checksum: X, calcul integrity: X, string: X
-        printf("OK : status: %d , checksum: %d, calcul integrity: %d, string: %s\n", status, checksum_char, calcul_integrity, characters);
+        printf("OK : status: %d , checksum: %d, calcul integrity: %s, string: %s\n", status, checksum_char, "OK", characters);
     }else{
         // ER : status: X , checksum: X, calcul integrity: X, string: X 
         // ER : nombre d’erreur cumulée : X
         ++error_count;
-        printf("ER : status: %d , checksum: %d, calcul integrity: %d, string: %s\n", status, checksum_char, calcul_integrity, characters);
+        printf("ER : status: %d , checksum: %d, calcul integrity: %s, string: %s\n", status, checksum_char, "ERR", characters);
         printf("ER : nombre d’erreur cumulée : %d\n", error_count);
     }
 
@@ -206,10 +205,10 @@ int main(void){
     		} /* if */
 
     		/* What about the trustworthy reading operations? (Part II) */
-    		if(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK)
+    		/*if(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK)
     		{
     			trustworthy_mode = (curr_switches_state & ARE_PW5_TRUSTY_SWITCHES_MASK) >> ARE_PW5_TRUSTY_SWITCHES_OFFSET;
-    		} /* if */
+    		}*/ /* if */
 
     		prev_switches_state = curr_switches_state;
     	} /* if */
