@@ -1,0 +1,153 @@
+m255
+K4
+z2
+!s11e vcom 2020.1_1 2020.03, Mar  4 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/media/sf_Partage_VM_Reds/ARE/ARE_labo_5/hps_acquis_string/hard/sim
+T_opt
+!s110 1733474220
+VRm7XQe^6`O<bVc@`>cLi<0
+04 18 10 work avalon_console_sim behavioral 1
+=1-000ae431a4f1-6752b7ab-e5d05-b84
+o-quiet -auto_acc_if_foreign -work work +acc
+tCvgOpt 0
+n@_opt
+OL;O;2020.1_1;71
+Eavalon_console_sim
+Z1 w1732890885
+Z2 DPx4 ieee 9 math_real 0 22 gNk<PdFJ<XNPcfef`f?Z81
+Z3 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
+Z4 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z5 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
+!i122 2
+R0
+Z6 8../src_tb/avalon_console_sim.vhd
+Z7 F../src_tb/avalon_console_sim.vhd
+l0
+L22 1
+VB^^Kfb@JG3h]D[UCQ>U6;0
+!s100 >mf0n65QYkDhB=TP9eJRi3
+Z8 OL;C;2020.1_1;71
+33
+Z9 !s110 1733474219
+!i10b 1
+Z10 !s108 1733474219.000000
+Z11 !s90 -reportprogress|300|-2008|-work|work|../src_tb/avalon_console_sim.vhd|
+Z12 !s107 ../src_tb/avalon_console_sim.vhd|
+!i113 0
+Z13 o-2008 -work work
+Z14 tExplicit 1 CvgOpt 0
+Abehavioral
+Z15 DEx4 work 18 generateur_strings 0 22 U72Pg90cCf8alRjRK989c2
+Z16 DEx4 work 18 avl_user_interface 0 22 o<2]G_d8VGYSN^QCNPz1E2
+R2
+R3
+R4
+R5
+DEx4 work 18 avalon_console_sim 0 22 B^^Kfb@JG3h]D[UCQ>U6;0
+!i122 2
+l138
+L25 198
+VNXA?bUNDAV;0X>D@mlZPE3
+!s100 iW_4HW8IKf3mNF_Y=fVc81
+R8
+33
+R9
+!i10b 1
+R10
+R11
+R12
+!i113 0
+R13
+R14
+Eavl_user_interface
+Z17 w1732889874
+R3
+R4
+R5
+!i122 0
+R0
+Z18 8../src/avl_user_interface.vhd
+Z19 F../src/avl_user_interface.vhd
+l0
+Z20 L34 1
+Vo<2]G_d8VGYSN^QCNPz1E2
+!s100 ?BC@5lc=_bm;P1BiHfDi33
+R8
+33
+R9
+!i10b 1
+R10
+Z21 !s90 -reportprogress|300|-2008|-work|work|../src/avl_user_interface.vhd|
+Z22 !s107 ../src/avl_user_interface.vhd|
+!i113 0
+R13
+R14
+Artl
+R3
+R4
+R5
+R16
+!i122 0
+l134
+L76 228
+Va>0R2WH1hTF@j3:1g]3UB3
+!s100 FlIbAU6lC=o@Y8]FIA<]10
+R8
+33
+R9
+!i10b 1
+R10
+R21
+R22
+!i113 0
+R13
+R14
+Egenerateur_strings
+Z23 w1732715028
+R3
+R4
+R5
+!i122 1
+R0
+Z24 8../src/generateur_strings.vhd
+Z25 F../src/generateur_strings.vhd
+l0
+R20
+VU72Pg90cCf8alRjRK989c2
+!s100 bIEC?eI4Xo1P5OD]IGiIM0
+R8
+33
+R9
+!i10b 1
+R10
+Z26 !s90 -reportprogress|300|-2008|-work|work|../src/generateur_strings.vhd|
+Z27 !s107 ../src/generateur_strings.vhd|
+!i113 0
+R13
+R14
+Astruct
+R3
+R4
+R5
+R15
+!i122 1
+l127
+L61 175
+VKNRj=mcL09Nl;MADCLPOc3
+!s100 7VKHb1iC86JCNC=QX=7Li3
+R8
+33
+R9
+!i10b 1
+R10
+R26
+R27
+!i113 0
+R13
+R14
