@@ -70,6 +70,13 @@ typedef struct
 
 
 /***************************
+ * Global variables
+ ***************************/
+
+static int error_count = 0;
+
+
+/***************************
  * Key pressed handlers
  ***************************/
 
@@ -93,53 +100,32 @@ void key1_press_handler(void)
 
 void key2_press_handler(void)
 {
+    char checksum_char = 0;
+    char characters[ARE_PW5_CHARS_NUMBER] = {0};
 
-    static errorCount = 0;
-
-    int chars_0 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_0_ADDR);
-    int chars_1 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_1_ADDR);
-    int chars_2 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_2_ADDR);
-    int chars_3 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_3_ADDR);
-    int checksum = AXI_HPS_LABO_REG(ARE_PW5_CHECKSUM_ADDR);
-
-    char char_0 = chars_0 & 0xFF;
-    char char_1 = chars_0 >> 8 & 0xFF;
-    char char_2 = chars_0 >> 16 & 0xFF;
-    char char_3 = chars_0 >> 24 & 0xFF;
-
-    char char_4 = chars_1 & 0xFF;
-    char char_5 = chars_1 >> 8 & 0xFF;
-    char char_6 = chars_1 >> 16 & 0xFF;
-    char char_7 = chars_1 >> 24 & 0xFF;
-
-    char char_8 = chars_2 & 0xFF;
-    char char_9 = chars_2 >> 8 & 0xFF;
-    char char_10 = chars_2 >> 16 & 0xFF;
-    char char_11 = chars_2 >> 24 & 0xFF;
-
-    char char_12 = chars_3 & 0xFF;
-    char char_13 = chars_3 >> 8 & 0xFF;
-    char char_14 = chars_3 >> 16 & 0xFF;
-    char char_15 = chars_3 >> 24 & 0xFF;
+    are_pw5_gen_read(characters, &checksum_char);
 
     // Verify checksum : (char_1 + char_2 + ... + char_16 + checksum) modulo 256 = 0
-    int calcul_integrity = (char_0 + char_1 + char_2 + char_3 + char_4 + char_5 + char_6 + char_7 + char_8 + char_9 + char_10 + char_11 + char_12 + char_13 + char_14 + char_15 + checksum) % 256;
-
+    int calcul_integrity = 0;
+    for(size_t i = 0; i < ARE_PW5_CHARS_NUMBER; ++i)
+    {
+    	calcul_integrity += characters[i];
+    } /* if */
+    calcul_integrity += checksum_char;
+    calcul_integrity %= 256;
     bool checksum_ok = calcul_integrity == 0;
-
-    char string[] = {char_0, char_1, char_2, char_3, char_4, char_5, char_6, char_7, char_8, char_9, char_10, char_11, char_12, char_13, char_14, char_15, '\0'};
 
     int status = AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR);
 
     if(checksum_ok){
         // OK : status: X , checksum: X, calcul integrity: X, string: X
-        printf("OK : status: %d , checksum: %d, calcul integrity: %d, string: %s\n", status, checksum, calcul_integrity, string);
+        printf("OK : status: %d , checksum: %d, calcul integrity: %s, string: %s\n", status, checksum_char, "OK", characters);
     }else{
         // ER : status: X , checksum: X, calcul integrity: X, string: X 
         // ER : nombre d’erreur cumulée : X
-        errorCount++;
-        printf("ER : status: %d , checksum: %d, calcul integrity: %d, string: %s\n", status, checksum, calcul_integrity, string);
-        printf("ER : nombre d’erreur cumulée : %d\n", errorCount);
+        ++error_count;
+        printf("ER : status: %d , checksum: %d, calcul integrity: %s, string: %s\n", status, checksum_char, "ERR", characters);
+        printf("ER : nombre d’erreur cumulée : %d\n", error_count);
     }
 
 } /* key0_press_handler */
@@ -181,8 +167,8 @@ int main(void){
 	uint32_t curr_switches_state;
     
     printf("Laboratoire: Conception d'une interface évoluée \n");
-    printf("Design standard ID: %08X\n", AXI_LW_CONST_REG);
-    printf("Interface ID: %08X\n", AXI_HPS_LABO_REG(ARE_PW5_INTERFACE_ADDR));
+    printf("Design standard ID: %08X\n", (unsigned int)AXI_LW_CONST_REG);
+    printf("Interface ID: %08X\n", (unsigned int)AXI_HPS_LABO_REG(ARE_PW5_INTERFACE_ADDR));
     
     /*
      * Init I/O
@@ -209,20 +195,20 @@ int main(void){
         	/* Check if we need to change the generation frequency */
     		if(switches_diff & ARE_PW5_FREQ_SWITCHES_MASK)
     		{
-                are_pw5_gen_set_freq_and_mode((curr_switches_state & ARE_PW5_MODE_SWITCHES_MASK) >> 8, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
+    			are_pw5_gen_set_freq((curr_switches_state & ARE_PW5_FREQ_SWITCHES_MASK) >> ARE_PW5_FREQ_SWITCHES_OFFSET);
     		} /* if */
 
     		/* Does the mode need to change? */
     		if(switches_diff & ARE_PW5_MODE_SWITCHES_MASK)
     		{
-                are_pw5_gen_set_freq_and_mode((curr_switches_state & ARE_PW5_MODE_SWITCHES_MASK) >> 8, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
+                are_pw5_gen_set_mode((curr_switches_state & ARE_PW5_MODE_SWITCHES_MASK) >> ARE_PW5_MODE_SWITCHES_OFFSET);
     		} /* if */
 
     		/* What about the trustworthy reading operations? (Part II) */
-    		if(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK)
+    		/*if(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK)
     		{
-    			are_pw5_gen_enable_trusty((switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK) >> ARE_PW5_TRUSTY_SWITCHES_OFFSET);
-    		} /* if */
+    			trustworthy_mode = (curr_switches_state & ARE_PW5_TRUSTY_SWITCHES_MASK) >> ARE_PW5_TRUSTY_SWITCHES_OFFSET;
+    		}*/ /* if */
 
     		prev_switches_state = curr_switches_state;
     	} /* if */
