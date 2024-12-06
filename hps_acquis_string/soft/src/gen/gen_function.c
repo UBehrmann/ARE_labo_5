@@ -58,11 +58,11 @@ void are_pw5_gen_read
 )
 {
 	/* Board is in a trusty mode (reads are guaranteed to be correct) */
-	if(ARE_PW5_STATUS_TRUSTY == (AXI_HPS_LABO_REG(ARE_PW5_STATUS_TRUSTY) & ARE_PW5_STATUS_MASK))
+	if(ARE_PW5_STATUS_TRUSTY == (AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR) & ARE_PW5_STATUS_MASK))
 	{
 		/* Request snapshot, and wait until it's available */
 		AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR) = ARE_PW5_STABLE_READ_REQ_MASK;
-		while(ARE_PW5_STATUS_SNAPSHOT != (AXI_HPS_LABO_REG(ARE_PW5_STATUS_TRUSTY) & ARE_PW5_STATUS_MASK))
+		while(ARE_PW5_STATUS_SNAPSHOT != (AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR) & ARE_PW5_STATUS_MASK))
 		{
 			/* Wait */
 		}

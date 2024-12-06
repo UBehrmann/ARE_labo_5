@@ -86,7 +86,7 @@ ARCHITECTURE rtl OF avl_user_interface IS
   CONSTANT STATUS_ADDRESS : INTEGER := 4;
   CONSTANT NEW_CHAR_INIT_CHAR_ADDRESS : INTEGER := 4;
   CONSTANT MODE_GEN_AND_DELAY_GEN_ADDRESS : INTEGER := 5;
-  -- CONSTANT NEW_FUNCTION_ADDRESS : INTEGER := 6;
+  CONSTANT SAVE_CHAR_ADDRESS : INTEGER := 6;
   -- CONSTANT NEW_FUNCTION_ADDRESS : INTEGER := 7;
   CONSTANT CHAR_1_TO_4_ADDRESS : INTEGER := 8;
   CONSTANT CHAR_5_TO_8_ADDRESS : INTEGER := 9;
@@ -102,23 +102,6 @@ ARCHITECTURE rtl OF avl_user_interface IS
   SIGNAL mode_gen_s : STD_LOGIC;
   SIGNAL delay_gen_s : STD_LOGIC_VECTOR(1 DOWNTO 0);
 
-  SIGNAL char_1_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_2_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_3_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_4_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_5_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_6_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_7_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_8_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_9_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_10_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_11_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_12_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_13_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_14_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_15_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL char_16_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
-
   SIGNAL checksum_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
   SIGNAL new_char_s : STD_LOGIC;
@@ -131,6 +114,39 @@ ARCHITECTURE rtl OF avl_user_interface IS
 
   SIGNAL boutton_s : STD_LOGIC_VECTOR(3 DOWNTO 0);
   SIGNAL switches_s : STD_LOGIC_VECTOR(9 DOWNTO 0);
+
+  -- Partie 2
+  SIGNAL fiable_s : STD_LOGIC;
+  SIGNAL save_s : STD_LOGIC;
+  SIGNAL save_char_s : STD_LOGIC;
+  SIGNAL char_rdy_s : STD_LOGIC;
+
+  SIGNAL chars_0_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL chars_1_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL chars_2_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL chars_3_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+  SIGNAL reg_chars_0_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL reg_chars_1_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL reg_chars_2_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL reg_chars_3_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL reg_checksum_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
+
+  SIGNAL to_send_chars_0_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL to_send_chars_1_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL to_send_chars_2_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL to_send_chars_3_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  SIGNAL to_send_checksum_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
+
+  --| Types |----------------------------------------------------------------
+  TYPE state_t IS (
+    --General state
+    WAIT_FOR_SAVE,
+    SAVE,
+    SAVE_DONE
+  );
+  SIGNAL e_pres, e_fut_s : state_t;
+
 BEGIN
 
   -- Input signals
@@ -181,31 +197,19 @@ BEGIN
           readdata_next_s(1 DOWNTO 0) <= delay_gen_s;
 
         WHEN CHAR_1_TO_4_ADDRESS =>
-          readdata_next_s(7 DOWNTO 0) <= char_4_s;
-          readdata_next_s(15 DOWNTO 8) <= char_3_s;
-          readdata_next_s(23 DOWNTO 16) <= char_2_s;
-          readdata_next_s(31 DOWNTO 24) <= char_1_s;
+          readdata_next_s <= to_send_chars_0_s;
 
         WHEN CHAR_5_TO_8_ADDRESS =>
-          readdata_next_s(7 DOWNTO 0) <= char_8_s;
-          readdata_next_s(15 DOWNTO 8) <= char_7_s;
-          readdata_next_s(23 DOWNTO 16) <= char_6_s;
-          readdata_next_s(31 DOWNTO 24) <= char_5_s;
+          readdata_next_s <= to_send_chars_1_s;
 
         WHEN CHAR_9_TO_12_ADDRESS =>
-          readdata_next_s(7 DOWNTO 0) <= char_12_s;
-          readdata_next_s(15 DOWNTO 8) <= char_11_s;
-          readdata_next_s(23 DOWNTO 16) <= char_10_s;
-          readdata_next_s(31 DOWNTO 24) <= char_9_s;
+          readdata_next_s <= to_send_chars_2_s;
 
         WHEN CHAR_13_TO_16_ADDRESS =>
-          readdata_next_s(7 DOWNTO 0) <= char_16_s;
-          readdata_next_s(15 DOWNTO 8) <= char_15_s;
-          readdata_next_s(23 DOWNTO 16) <= char_14_s;
-          readdata_next_s(31 DOWNTO 24) <= char_13_s;
+          readdata_next_s <= to_send_chars_3_s;
 
         WHEN CHECKSUM_ADDRESS =>
-          readdata_next_s(7 DOWNTO 0) <= checksum_s;
+          readdata_next_s(7 DOWNTO 0) <= to_send_checksum_s;
 
         WHEN OTHERS =>
           readdata_next_s <= OTHERS_VAL_C;
@@ -250,9 +254,10 @@ BEGIN
       delay_gen_s <= (OTHERS => '0');
 
     ELSIF rising_edge(avl_clk_i) THEN
-	 
-	 new_char_s <= '0';
-	 init_char_s <= '0';
+
+      new_char_s <= '0';
+      init_char_s <= '0';
+      save_char_s <= '0';
 
       IF avl_write_i = '1' THEN
 
@@ -269,6 +274,9 @@ BEGIN
             mode_gen_s <= avl_writedata_i(4);
             delay_gen_s <= avl_writedata_i(1 DOWNTO 0);
 
+          WHEN SAVE_CHAR_ADDRESS =>
+            save_char_s <= avl_writedata_i(0);
+
           WHEN OTHERS =>
             NULL;
 
@@ -284,23 +292,90 @@ BEGIN
   auto_o <= mode_gen_s;
   delay_o <= delay_gen_s;
 
-  char_1_s <= char_1_i;
-  char_2_s <= char_2_i;
-  char_3_s <= char_3_i;
-  char_4_s <= char_4_i;
-  char_5_s <= char_5_i;
-  char_6_s <= char_6_i;
-  char_7_s <= char_7_i;
-  char_8_s <= char_8_i;
-  char_9_s <= char_9_i;
-  char_10_s <= char_10_i;
-  char_11_s <= char_11_i;
-  char_12_s <= char_12_i;
-  char_13_s <= char_13_i;
-  char_14_s <= char_14_i;
-  char_15_s <= char_15_i;
-  char_16_s <= char_16_i;
+  chars_0_s <= char_1_i & char_2_i & char_3_i & char_4_i;
+  chars_1_s <= char_5_i & char_6_i & char_7_i & char_8_i;
+  chars_2_s <= char_9_i & char_10_i & char_11_i & char_12_i;
+  chars_3_s <= char_13_i & char_14_i & char_15_i & char_16_i;
+
+  to_send_chars_0_s <= chars_0_s WHEN fiable_s = '0' ELSE
+    reg_chars_0_s;
+  to_send_chars_1_s <= chars_1_s WHEN fiable_s = '0' ELSE
+    reg_chars_1_s;
+  to_send_chars_2_s <= chars_2_s WHEN fiable_s = '0' ELSE
+    reg_chars_2_s;
+  to_send_chars_3_s <= chars_3_s WHEN fiable_s = '0' ELSE
+    reg_chars_3_s;
+  to_send_checksum_s <= checksum_i WHEN fiable_s = '0' ELSE
+    reg_checksum_s;
 
   checksum_s <= checksum_i;
 
+  status_s <= fiable_s & char_rdy_s WHEN fiable_s = '1' ELSE
+    "00";
+
+  -- Sauvegarde les valeurs
+  sync_register_p : PROCESS (
+    avl_reset_i,
+    avl_clk_i
+    )
+  BEGIN
+    IF avl_reset_i = '1' THEN
+
+      reg_chars_0_s <= (OTHERS => '0');
+      reg_chars_1_s <= (OTHERS => '0');
+      reg_chars_2_s <= (OTHERS => '0');
+      reg_chars_3_s <= (OTHERS => '0');
+
+    ELSIF rising_edge(avl_clk_i) THEN
+
+      IF (save_s = '1') THEN
+        reg_chars_0_s <= chars_0_s;
+        reg_chars_1_s <= chars_1_s;
+        reg_chars_2_s <= chars_2_s;
+        reg_chars_3_s <= chars_3_s;
+        reg_checksum_s <= checksum_s;
+      END IF;
+
+    END IF;
+  END PROCESS;
+
+  -- State machine
+  -- This process update the state of the state machine
+  fsm_reg : PROCESS (avl_reset_i, avl_clk_i) IS
+  BEGIN
+    IF (avl_reset_i = '1') THEN
+      e_pres <= WAIT_FOR_SAVE;
+    ELSIF (rising_edge(avl_clk_i)) THEN
+      e_pres <= e_fut_s;
+    END IF;
+  END PROCESS fsm_reg;
+
+  dec_fut_sort : PROCESS (
+    e_pres
+    ) IS
+  BEGIN
+    -- Default values for generated signal
+    save_s <= '0';
+    char_rdy_s <= '0';
+
+    CASE e_pres IS
+      WHEN WAIT_FOR_SAVE =>
+        IF save_char_s = '1' THEN
+          e_fut_s <= SAVE;
+        END IF;
+
+      WHEN SAVE =>
+        save_s <= '1';
+        e_fut_s <= SAVE_DONE;
+
+      WHEN SAVE_DONE =>
+        char_rdy_s <= '1';
+        IF save_char_s = '1' THEN
+          e_fut_s <= SAVE;
+        END IF;
+
+      WHEN OTHERS =>
+        e_fut_s <= WAIT_FOR_SAVE;
+    END CASE;
+  END PROCESS dec_fut_sort;
 END rtl;
