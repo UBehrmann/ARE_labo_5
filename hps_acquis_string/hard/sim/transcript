@@ -93,3 +93,5 @@
 # ** Note: (vsim-8009) Loading existing optimized design _opt
 # ** Warning: (vsim-8683) Uninitialized out port /avalon_console_sim/DUT/avl_waitrequest_o has no driver.
 # This port will contribute value (U) to the signal network.
+# End time: 10:24:38 on Dec 06,2024, Elapsed time: 0:47:39
+# Errors: 0, Warnings: 1
