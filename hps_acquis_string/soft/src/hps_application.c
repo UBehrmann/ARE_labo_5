@@ -94,6 +94,54 @@ void key1_press_handler(void)
 void key2_press_handler(void)
 {
 
+    static errorCount = 0;
+
+    int chars_0 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_0_ADDR);
+    int chars_1 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_1_ADDR);
+    int chars_2 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_2_ADDR);
+    int chars_3 = AXI_HPS_LABO_REG(ARE_PW5_CHARS_3_ADDR);
+    int checksum = AXI_HPS_LABO_REG(ARE_PW5_CHECKSUM_ADDR);
+
+    char char_0 = chars_0 & 0xFF;
+    char char_1 = chars_0 >> 8 & 0xFF;
+    char char_2 = chars_0 >> 16 & 0xFF;
+    char char_3 = chars_0 >> 24 & 0xFF;
+
+    char char_4 = chars_1 & 0xFF;
+    char char_5 = chars_1 >> 8 & 0xFF;
+    char char_6 = chars_1 >> 16 & 0xFF;
+    char char_7 = chars_1 >> 24 & 0xFF;
+
+    char char_8 = chars_2 & 0xFF;
+    char char_9 = chars_2 >> 8 & 0xFF;
+    char char_10 = chars_2 >> 16 & 0xFF;
+    char char_11 = chars_2 >> 24 & 0xFF;
+
+    char char_12 = chars_3 & 0xFF;
+    char char_13 = chars_3 >> 8 & 0xFF;
+    char char_14 = chars_3 >> 16 & 0xFF;
+    char char_15 = chars_3 >> 24 & 0xFF;
+
+    // Verify checksum : (char_1 + char_2 + ... + char_16 + checksum) modulo 256 = 0
+    int calcul_integrity = (char_0 + char_1 + char_2 + char_3 + char_4 + char_5 + char_6 + char_7 + char_8 + char_9 + char_10 + char_11 + char_12 + char_13 + char_14 + char_15 + checksum) % 256;
+
+    bool checksum_ok = calcul_integrity == 0;
+
+    char string[] = {char_0, char_1, char_2, char_3, char_4, char_5, char_6, char_7, char_8, char_9, char_10, char_11, char_12, char_13, char_14, char_15, '\0'};
+
+    int status = AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR);
+
+    if(checksum_ok){
+        // OK : status: X , checksum: X, calcul integrity: X, string: X
+        printf("OK : status: %d , checksum: %d, calcul integrity: %d, string: %s\n", status, checksum, calcul_integrity, string);
+    }else{
+        // ER : status: X , checksum: X, calcul integrity: X, string: X 
+        // ER : nombre d’erreur cumulée : X
+        errorCount++;
+        printf("ER : status: %d , checksum: %d, calcul integrity: %d, string: %s\n", status, checksum, calcul_integrity, string);
+        printf("ER : nombre d’erreur cumulée : %d\n", errorCount);
+    }
+
 } /* key0_press_handler */
 
 
@@ -104,7 +152,7 @@ void key2_press_handler(void)
 
 int main(void){
 
-    const TKeyPressAction key_press_actions[ARE_PW5_BUTTONS_NBR] = {
+    TKeyPressAction key_press_actions[ARE_PW5_BUTTONS_NBR] = {
         {
             key0_press_handler,
             false,
@@ -133,8 +181,8 @@ int main(void){
 	uint32_t curr_switches_state;
     
     printf("Laboratoire: Conception d'une interface évoluée \n");
-    printf("Design standard ID: %08X", AXI_LW_CONST_REG);
-    printf("Interface ID: %08X", AXI_HPS_LABO_REG(ARE_PW5_INTERFACE_ADDR));
+    printf("Design standard ID: %08X\n", AXI_LW_CONST_REG);
+    printf("Interface ID: %08X\n", AXI_HPS_LABO_REG(ARE_PW5_INTERFACE_ADDR));
     
     /*
      * Init I/O
@@ -161,13 +209,13 @@ int main(void){
         	/* Check if we need to change the generation frequency */
     		if(switches_diff & ARE_PW5_FREQ_SWITCHES_MASK)
     		{
-    			are_pw5_gen_set_freq((switches_diff & ARE_PW5_FREQ_SWITCHES_MASK) >> ARE_PW5_FREQ_SWITCHES_OFFSET);
+                are_pw5_gen_set_freq_and_mode(curr_switches_state && ARE_PW5_FREQ_SWITCHES_MASK, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
     		} /* if */
 
     		/* Does the mode need to change? */
-    		if(switches_diff & ARE_PW5_MODE_MASK)
+    		if(switches_diff & ARE_PW5_MODE_SWITCHES_MASK)
     		{
-    			are_pw5_gen_set_mode((switches_diff & ARE_PW5_MODE_SWITCHES_MASK) >> ARE_PW5_MODE_SWITCHES_OFFSET);
+                are_pw5_gen_set_freq_and_mode(curr_switches_state && ARE_PW5_FREQ_SWITCHES_MASK, curr_switches_state && ARE_PW5_MODE_SWITCHES_MASK);
     		} /* if */
 
     		/* What about the trustworthy reading operations? (Part II) */

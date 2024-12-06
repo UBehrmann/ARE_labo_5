@@ -43,6 +43,16 @@ void are_pw5_gen_set_mode
 	AXI_HPS_LABO_REG(ARE_PW5_MODE_ADDR) = (new_mode << ARE_PW5_MODE_OFFSET) & ARE_PW5_MODE_MASK;
 } /* are_pw5_gen_set_mode */
 
+void are_pw5_gen_set_freq_and_mode
+(
+	uint32_t new_frequency,
+	uint32_t new_mode
+)
+{
+	AXI_HPS_LABO_REG(ARE_PW5_DELAY_ADDR) = (new_frequency << ARE_PW5_DELAY_OFFSET) & ARE_PW5_DELAY_MASK;
+	AXI_HPS_LABO_REG(ARE_PW5_MODE_ADDR) |= (new_mode << ARE_PW5_MODE_OFFSET) & ARE_PW5_MODE_MASK;
+} /* are_pw5_gen_set_freq_and_mode */
+
 
 void are_pw5_gen_enable_trusty
 (

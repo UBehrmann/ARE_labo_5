@@ -25,7 +25,7 @@
 #ifndef SRC_IO_IO_FUNCTION_H_
 #define SRC_IO_IO_FUNCTION_H_
 
-#include "axi_lw.h"
+#include "../axi_lw.h"
 #include <stdint.h>
 #include <stdbool.h>
 

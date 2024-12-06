@@ -36,7 +36,7 @@
 #define AXI_LW_CONST_REG			(AXI_LW_REG(0))
 
 /* Base address for this PW's interface memory space */
-#define AXI_LW_HPS_FPGA_LABO_ADD	AXI_LW_HPS_FPGA_BASE_ADD + 0x010000
+#define AXI_LW_HPS_FPGA_LABO_ADD	0x010000
 
 /* Gets the register address for this PW's memory space, with an offset */
 #define AXI_HPS_LABO_REG(offset)	(AXI_LW_REG(AXI_LW_HPS_FPGA_LABO_ADD + offset))
