@@ -1,4 +1,4 @@
-/*****************************************************************************************
+ /*****************************************************************************************
  * HEIG-VD
  * Haute Ecole d'Ingenerie et de Gestion du Canton de Vaud
  * School of Business and Engineering in Canton de Vaud
@@ -26,12 +26,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "axi_lw.h"
 #include "io/io_function.h"
 #include "gen/gen_function.h"
 
 int __auto_semihosting;
 
+
+
+/***************************
+ * Macros
+ ***************************/
+
+#define ARE_PW5_PRINT_BUFFER_SIZE	(256u)
 
 
 /***************************
@@ -64,6 +72,7 @@ typedef struct
      * Used to know whether continuous pressing is allowed
      */
     bool allows_continuous_pressing;
+
 } TKeyPressAction;
 
 
@@ -73,7 +82,10 @@ typedef struct
  * Global variables
  ***************************/
 
-static int error_count = 0;
+static size_t error_count = 0u;
+
+static char print_buffer[ARE_PW5_PRINT_BUFFER_SIZE] = {0};
+static int print_buffer_sp = 0u;
 
 
 /***************************
@@ -117,17 +129,29 @@ void key2_press_handler(void)
 
     int status = AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR);
 
-    if(checksum_ok){
-        // OK : status: X , checksum: X, calcul integrity: X, string: X
-        printf("OK : status: %d , checksum: %d, calcul integrity: %s, string: %s\n", status, checksum_char, "OK", characters);
-    }else{
-        // ER : status: X , checksum: X, calcul integrity: X, string: X 
+    print_buffer_sp += sprintf(print_buffer + print_buffer_sp,
+    						   "%s : status: %d , checksum: %d, calcul integrity: %s, string: %s\n",
+							   checksum_ok ? "OK" : "ER",
+							   status,
+							   checksum_char,
+							   checksum_ok ? "OK" : "ERROR",
+							   characters);
+
+    if(!checksum_ok)
+    {
         // ER : nombre d’erreur cumulée : X
         ++error_count;
-        printf("ER : status: %d , checksum: %d, calcul integrity: %s, string: %s\n", status, checksum_char, "ERR", characters);
-        printf("ER : nombre d’erreur cumulée : %d\n", error_count);
-    }
 
+        print_buffer_sp += sprintf(print_buffer + print_buffer_sp,
+        						   "ER : nombre d’erreur cumulée : %zu\n",
+								   error_count);
+    } /* if */
+
+    printf("%s", print_buffer);
+
+    /* Clear print buffer */
+    memset(print_buffer, 0, print_buffer_sp);
+    print_buffer_sp = 0;
 } /* key0_press_handler */
 
 
@@ -203,12 +227,6 @@ int main(void){
     		{
                 are_pw5_gen_set_mode((curr_switches_state & ARE_PW5_MODE_SWITCHES_MASK) >> ARE_PW5_MODE_SWITCHES_OFFSET);
     		} /* if */
-
-    		/* What about the trustworthy reading operations? (Part II) */
-    		/*if(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK)
-    		{
-    			trustworthy_mode = (curr_switches_state & ARE_PW5_TRUSTY_SWITCHES_MASK) >> ARE_PW5_TRUSTY_SWITCHES_OFFSET;
-    		}*/ /* if */
 
     		prev_switches_state = curr_switches_state;
     	} /* if */

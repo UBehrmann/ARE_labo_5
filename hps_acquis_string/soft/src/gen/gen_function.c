@@ -22,6 +22,7 @@
  * 1.0    6 oct 24    pedro.alvesdas    First version
 *****************************************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "gen_function.h"
@@ -58,12 +59,18 @@ void are_pw5_gen_read
 )
 {
 	/* Board is in a trusty mode (reads are guaranteed to be correct) */
+	printf("[DEBUG] Status: %X\n[DEBUG] Snapshot request reg: %X\n",
+		   (unsigned int)AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR),
+		   (unsigned int)AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR));
+
 	if(ARE_PW5_STATUS_TRUSTY == (AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR) & ARE_PW5_STATUS_MASK))
 	{
+		printf("[DEBUG] Trustworthy read mode\n");
 		/* Request snapshot, and wait until it's available */
 		AXI_HPS_LABO_REG(ARE_PW5_STABLE_READ_REQ_ADDR) = ARE_PW5_STABLE_READ_REQ_MASK;
-		while(ARE_PW5_STATUS_SNAPSHOT != (AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR) & ARE_PW5_STATUS_MASK))
+		while(ARE_PW5_SNAPSHOT_AVAIL_MASK != (AXI_HPS_LABO_REG(ARE_PW5_STATUS_ADDR) & ARE_PW5_SNAPSHOT_AVAIL_MASK))
 		{
+			printf("[DEBUG] Waiting for snapshot\n");
 			/* Wait */
 		}
 	} /* if */
