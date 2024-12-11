@@ -21,13 +21,45 @@
 
 # Introduction
 
+Dans ce laboratoire, nous allons concevoir une interface permettant d'effectuer la lecture de
+différentes chaînes de caractères générées par la board DE1-SoC. La génération de ces dernières
+peuvent être effecutées à différentes fréquences (1Hz, 1KHz, 100KHz, 1MHz), et de façon manuelle ou
+automatique.
+
+Lors de la première partie, les lectures seront effectuées de façon non-fiable, ce qui
+nous permettra de remarquer l'accès aux différents blocs de la chaîne alors que l'interface est en
+train de remplacer les valeurs des blocks. La deuxième partie nous permettra d'implémenter un
+méchanisme permettant d'éviter les lectures éronnées.
+
+Afin de vérifier si une lecture correcte a eu lieu, un byte de checksum est utilisé. La lecture est
+considérée comme correcte lorsque la somme des valeurs ASCII de chacun des caractères lus plus le
+byte de checksum, le tout modulo 256, vaut 0.
+
+Si une lecture n'a pas été éffectuée correctement, un message à l'écran s'affiche, et le nombre de
+fois qu'une lecture erronée a été faite depuis le lancement du programme est également affiché.
+
+
 # Analyse
 
 ## Plan d’adressage
 
 
-
 ## Schéma bloc de l’interface
+
+
+## Code
+
+La base de notre code est très semblable au code des laboratoires précédents. Toutefois, elle a été
+adapté avec les nouvelles adresses et masques à utiliser.
+
+L'interface utilisant le bus Avalon, les adresses qui nous intéressent commencent à `0xFF20 0000`,
+soit l'adresse de base pour l'AXI lightweight HPS-to-FPGA. La zone mémoire pour notre interface
+se trouve à l'offset `0x0001 0000`, et nous disposons de 64KiB de mémoire. De ce fait, notre
+interface intéragit avec l'espace mémoire, offset, `0x0001 0000` à `0x0001 FFFF`.
+
+Le code va lire l'ID du design standard à la première adresse de cet espace mémoire (offset `0x0`).
+
+### Accès mémoire
 
 
 # Tests
@@ -54,7 +86,7 @@ Pour la partie 1, nous avons effectué en premier des tests avec le test bench f
 | `Read 40`      | Lecture des char 13 à 16                       |
 | `Read 44`      | Lecture du checksum [7-0]                      |
 
-Ici, un screenshot de l'interface de simulation:l
+Ici, un screenshot de l'interface de simulation:
 
 ![Simulation](/imgs/p1_test1_0.png)
 
@@ -69,14 +101,21 @@ Et les chronogrammes:
 
 ### Tests sur la carte
 
+> **NOTE: ** Les tests ont été effectués de façon séquentielle. Du coup, si nous effectuons le
+test "Set du switch 7 à 1 active le mode automatique", alors le mode automatique reste actif
+jusqu'à-ce qu'on le désactive avec "Set du switch 7 à 0 active le mode automatique".
+
 Pour la partie 1, nous avons effectué les tests ci-dessous sur la carte. Tous les tests mentionnés
 ont été effectués avec succès.
 
 | Test effectué                                                                                   |
 |:------------------------------------------------------------------------------------------------|
 | Le programme affiche les 2 IDs attendus                                                         |
+| Pression de la Key0 réinitialise le générateur réinitialise le générateur à "Hello world!"      |
 | Pression sur Key2 affiche une lecture                                                           |
-| Maintient de la Key2 affiche les lectures continuellement                                       |
+| La lecture affiche les caractères dans le bon ordre ("Hello world!" comparé à "lleHow o!dlr")   |
+| Calcul d'intégrité est correct (somme des caractères + valeur de checksum)                      |
+| Maintient de la Key2 affiche la même lecture continuellement                                    |
 | Maintient de la Key2 + pression de la Key0 réinitialise le générateur à "Hello world!"          |
 | Maintient de la Key2 + pression de la Key1 affiche une lecture avec une string différente       |
 | Maintient de la Key2 + maintient de la Key1 affiche une seule lecture différente                |
@@ -84,8 +123,28 @@ ont été effectués avec succès.
 | Affichage des lectures affiche les bonnes informations en cas de succès                         |
 | Affichage des lectures affiche les bonnes informations en cas d'erreur                          |
 | Le compteur des erreurs incrémente à chaque erreur                                              |
-| Changement de fréquence est effectuée, et le nombre de strings différentes par seconde augmente |
-| Changement de fréquence reflet le nombre d'erreurs perçues                                      |
-| Incrémentation et décrémentation de la fréquence est effectuée correctement                     |
+| Incrém. de la fréq. est effectuée, et le nombre de strings différentes par seconde augmente     |
+| Changement de fréquence reflet le nombre d'erreur perçues                                       |
+| Décr. de la fréq., à partir de la valeur maximale jusqu'à minimale, est effectuée correctement  |
 | Set du switch 7 à 0 désactive le mode automatique                                               |
 | Pression de la Key0 lorsque le mode automatique est actif réinitialise le générateur            |
+
+## Partie 2
+
+### Simulation
+
+
+### Tests sur la carte
+
+Pour la partie 2, nous avons re-effectué les tests de la partie 1, ainsi que les tests suivants:
+
+| Test effectué                                                                                   |
+|:------------------------------------------------------------------------------------------------|
+| Set du switch 7 à 1 active le mode automatique                                                  |
+| Set du switch 0 à 1 active le mode fiable                                                       |
+| Fréquence plus basse (1Hz) génère des mots dans la bonne fréquence                              |
+| Pression sur Key2 affiche une lecture sans erreurs                                              |
+| Maintient sur Key2 affiche une lecture sans erreurs                                             |
+| Incrém. de la fréq. est effectuée, et le nombre de lectures incorrectes reste à 0               |
+| Set du switch 0 à 0 désactive le mode fiable                                                    |
+| Maintient de la Key2 affiche la même lecture continuellement                                    |
