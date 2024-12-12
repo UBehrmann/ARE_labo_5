@@ -313,6 +313,9 @@ BEGIN
   status_s <= fiable_s & char_rdy_s WHEN fiable_s = '1' ELSE
     "00";
 
+  -- switch 0 = fiable
+  fiable_s <= switches_s(0);
+
   -- Sauvegarde les valeurs
   sync_register_p : PROCESS (
     avl_reset_i,
@@ -357,6 +360,7 @@ BEGIN
     -- Default values for generated signal
     save_s <= '0';
     char_rdy_s <= '0';
+    e_fut_s <= WAIT_FOR_SAVE;
 
     CASE e_pres IS
       WHEN WAIT_FOR_SAVE =>
@@ -366,16 +370,21 @@ BEGIN
 
       WHEN SAVE =>
         save_s <= '1';
+
         e_fut_s <= SAVE_DONE;
 
       WHEN SAVE_DONE =>
         char_rdy_s <= '1';
+
         IF save_char_s = '1' THEN
           e_fut_s <= SAVE;
+        ELSE
+          e_fut_s <= SAVE_DONE;
         END IF;
 
       WHEN OTHERS =>
         e_fut_s <= WAIT_FOR_SAVE;
+
     END CASE;
   END PROCESS dec_fut_sort;
 END rtl;

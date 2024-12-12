@@ -14,10 +14,15 @@
 - [Analyse](#analyse)
   - [Plan d’adressage](#plan-dadressage)
   - [Schéma bloc de l’interface](#schéma-bloc-de-linterface)
+  - [Code](#code)
+    - [Accès mémoire](#accès-mémoire)
 - [Tests](#tests)
   - [Partie 1](#partie-1)
     - [Simulation](#simulation)
     - [Tests sur la carte](#tests-sur-la-carte)
+  - [Partie 2](#partie-2)
+    - [Simulation](#simulation-1)
+    - [Tests sur la carte](#tests-sur-la-carte-1)
 
 # Introduction
 
@@ -43,6 +48,30 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 
 ## Plan d’adressage
 
+
+| Address (offset) | Read                                | Write                             |
+| ---------------- | ----------------------------------- | --------------------------------- |
+| 0x00             | [31..0] Interface user ID           | reserved                          |
+| 0x04             | [31..4] "0..0"; [3..0] buttons      | reserved                          |
+| 0x08             | [31..10] "0..0"; [9..0] switches    | reserved                          |
+| 0x0C             | [31..10] "0..0"; [9..0] leds        | [31..10] reserved; [9..0] leds    |
+| 0x10             | [31..2] "0..0"; [1..0] status       | [31..5] reserved; [4] new_char;   |
+|                  |                                     | [3..1] reserved; [0] init_char    |
+| 0x14             | [31..5] "0..0"; [4] mode_gen;       | [31..5] reserved; [4] mode_gen;   |
+|                  | [3..2] "0..0"; [1..0] delay_gen     | [3..2] reserved; [1..0] delay_gen |
+| 0x18             | [31..0] "0..0";                     | [31..1] reserved; [0] save_char   |
+| 0x1C             | available for new functionality     | available for new functionality   |
+| 0x20             | [31..24] char_2; [23..16] char_3;   | reserved                          |
+|                  | [15..8] char_4; [7..0] char_4       |                                   |
+| 0x24             | [31..24] char_5; [23..16] char_6;   | reserved                          |
+|                  | [15..8] char_7; [7..0] char_8       |                                   |
+| 0x28             | [31..24] char_9; [23..16] char_10;  | reserved                          |
+|                  | [15..8] char_11; [7..0] char_12     |                                   |
+| 0x2C             | [31..24] char_13; [23..16] char_14; | reserved                          |
+|                  | [15..8] char_15; [7..0] char_16     |                                   |
+| 0x30             | [31..8] "0..0"; [7..0] checksum     | reserved                          |
+| 0x34             | reserved                            | reserved                          |
+| 0x40..0xFFC      | not used                            | not used      
 
 ## Schéma bloc de l’interface
 
