@@ -152,7 +152,7 @@ BEGIN
   -- Input signals
 
   -- Synchronisation des signaux d'entree
-  read_register_p : PROCESS (
+  sync_input : PROCESS (
     avl_reset_i,
     avl_clk_i
     )
@@ -211,6 +211,9 @@ BEGIN
         WHEN MODE_GEN_AND_DELAY_GEN_ADDRESS =>
           readdata_next_s(4) <= mode_gen_s;
           readdata_next_s(1 DOWNTO 0) <= delay_gen_s;
+
+        WHEN RELIABLE_ADDRESS =>
+          readdata_next_s(0) <= reliable_s;
 
         WHEN CHAR_1_TO_4_ADDRESS =>
           readdata_next_s <= to_send_chars_0_s;
@@ -328,8 +331,6 @@ BEGIN
     reg_chars_3_s;
   to_send_checksum_s <= checksum_i WHEN reliable_s = '0' ELSE
     reg_checksum_s;
-
-
   status_s <= reliable_s & char_rdy_s WHEN reliable_s = '1' ELSE
     "00";
 

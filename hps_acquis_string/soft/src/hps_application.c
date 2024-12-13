@@ -231,7 +231,7 @@ int main(void){
             /* Are we toggling the reliable reading mode? */
             if(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK)
             {
-                are_pw5_gen_set_trusty(switches_diff & ARE_PW5_TRUSTY_SWITCHES_MASK);
+                are_pw5_gen_set_trusty(curr_switches_state & ARE_PW5_TRUSTY_SWITCHES_MASK);
             } /* if */
 
     		prev_switches_state = curr_switches_state;

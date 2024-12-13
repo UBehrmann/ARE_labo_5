@@ -60,7 +60,7 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 | 0x14             | [31..5] "0..0"; [4] mode_gen;       | [31..5] reserved; [4] mode_gen;   |
 |                  | [3..2] "0..0"; [1..0] delay_gen     | [3..2] reserved; [1..0] delay_gen |
 | 0x18             | reserved                            | [31..1] reserved; [0] save_char   |
-| 0x1C             | reserved                            | [31..1] reserved; [0] reliable    |
+| 0x1C             | [31..1] reserved; [0] reliable      | [31..1] reserved; [0] reliable    |
 | 0x20             | [31..24] char_2; [23..16] char_3;   | reserved                          |
 |                  | [15..8] char_4; [7..0] char_4       |                                   |
 | 0x24             | [31..24] char_5; [23..16] char_6;   | reserved                          |
