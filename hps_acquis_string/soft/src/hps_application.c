@@ -143,7 +143,7 @@ void key2_press_handler(void)
         ++error_count;
 
         print_buffer_sp += sprintf(print_buffer + print_buffer_sp,
-        						   "ER : nombre d’erreur cumulée : %zu\n",
+        						   "ER : nombre d’erreur cumulée : %d\n",
 								   error_count);
     } /* if */
 

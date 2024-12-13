@@ -87,7 +87,7 @@ ARCHITECTURE rtl OF avl_user_interface IS
   CONSTANT NEW_CHAR_INIT_CHAR_ADDRESS : INTEGER := 4;
   CONSTANT MODE_GEN_AND_DELAY_GEN_ADDRESS : INTEGER := 5;
   CONSTANT SAVE_CHAR_ADDRESS : INTEGER := 6;
-  -- CONSTANT NEW_FUNCTION_ADDRESS : INTEGER := 7;
+  CONSTANT RELIABLE_ADDRESS : INTEGER := 7;
   CONSTANT CHAR_1_TO_4_ADDRESS : INTEGER := 8;
   CONSTANT CHAR_5_TO_8_ADDRESS : INTEGER := 9;
   CONSTANT CHAR_9_TO_12_ADDRESS : INTEGER := 10;
@@ -116,7 +116,7 @@ ARCHITECTURE rtl OF avl_user_interface IS
   SIGNAL switches_s : STD_LOGIC_VECTOR(9 DOWNTO 0);
 
   -- Partie 2
-  SIGNAL fiable_s : STD_LOGIC;
+  SIGNAL reliable_s : STD_LOGIC;
   SIGNAL save_s : STD_LOGIC;
   SIGNAL save_char_s : STD_LOGIC;
   SIGNAL char_rdy_s : STD_LOGIC;
@@ -151,8 +151,24 @@ BEGIN
 
   -- Input signals
 
-  boutton_s <= button_i;
-  switches_s <= switch_i;
+  -- Synchronisation des signaux d'entree
+  read_register_p : PROCESS (
+    avl_reset_i,
+    avl_clk_i
+    )
+  BEGIN
+    IF avl_reset_i = '1' THEN
+
+      boutton_s <= (OTHERS => '0');
+      switches_s <= (OTHERS => '0');
+
+    ELSIF rising_edge(avl_clk_i) THEN
+
+      boutton_s <= button_i;
+      switches_s <= switch_i;
+
+    END IF;
+  END PROCESS;
 
   -- Output signals
 
@@ -277,6 +293,9 @@ BEGIN
           WHEN SAVE_CHAR_ADDRESS =>
             save_char_s <= avl_writedata_i(0);
 
+          WHEN RELIABLE_ADDRESS =>
+            reliable_s <= avl_writedata_i(0);
+
           WHEN OTHERS =>
             NULL;
 
@@ -297,24 +316,22 @@ BEGIN
   chars_2_s <= char_9_i & char_10_i & char_11_i & char_12_i;
   chars_3_s <= char_13_i & char_14_i & char_15_i & char_16_i;
 
-  to_send_chars_0_s <= chars_0_s WHEN fiable_s = '0' ELSE
-    reg_chars_0_s;
-  to_send_chars_1_s <= chars_1_s WHEN fiable_s = '0' ELSE
-    reg_chars_1_s;
-  to_send_chars_2_s <= chars_2_s WHEN fiable_s = '0' ELSE
-    reg_chars_2_s;
-  to_send_chars_3_s <= chars_3_s WHEN fiable_s = '0' ELSE
-    reg_chars_3_s;
-  to_send_checksum_s <= checksum_i WHEN fiable_s = '0' ELSE
-    reg_checksum_s;
-
   checksum_s <= checksum_i;
 
-  status_s <= fiable_s & char_rdy_s WHEN fiable_s = '1' ELSE
-    "00";
+  to_send_chars_0_s <= chars_0_s WHEN reliable_s = '0' ELSE
+    reg_chars_0_s;
+  to_send_chars_1_s <= chars_1_s WHEN reliable_s = '0' ELSE
+    reg_chars_1_s;
+  to_send_chars_2_s <= chars_2_s WHEN reliable_s = '0' ELSE
+    reg_chars_2_s;
+  to_send_chars_3_s <= chars_3_s WHEN reliable_s = '0' ELSE
+    reg_chars_3_s;
+  to_send_checksum_s <= checksum_i WHEN reliable_s = '0' ELSE
+    reg_checksum_s;
 
-  -- switch 0 = fiable
-  fiable_s <= switches_s(0);
+
+  status_s <= reliable_s & char_rdy_s WHEN reliable_s = '1' ELSE
+    "00";
 
   -- Sauvegarde les valeurs
   sync_register_p : PROCESS (

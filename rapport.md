@@ -59,8 +59,8 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 |                  |                                     | [3..1] reserved; [0] init_char    |
 | 0x14             | [31..5] "0..0"; [4] mode_gen;       | [31..5] reserved; [4] mode_gen;   |
 |                  | [3..2] "0..0"; [1..0] delay_gen     | [3..2] reserved; [1..0] delay_gen |
-| 0x18             | [31..0] "0..0";                     | [31..1] reserved; [0] save_char   |
-| 0x1C             | available for new functionality     | available for new functionality   |
+| 0x18             | reserved                            | [31..1] reserved; [0] save_char   |
+| 0x1C             | reserved                            | [31..1] reserved; [0] reliable    |
 | 0x20             | [31..24] char_2; [23..16] char_3;   | reserved                          |
 |                  | [15..8] char_4; [7..0] char_4       |                                   |
 | 0x24             | [31..24] char_5; [23..16] char_6;   | reserved                          |
@@ -71,7 +71,7 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 |                  | [15..8] char_15; [7..0] char_16     |                                   |
 | 0x30             | [31..8] "0..0"; [7..0] checksum     | reserved                          |
 | 0x34             | reserved                            | reserved                          |
-| 0x40..0xFFC      | not used                            | not used      
+| 0x40..0xFFC      | not used                            | not used                          |
 
 ## Schéma bloc de l’interface
 
@@ -137,26 +137,26 @@ jusqu'à-ce qu'on le désactive avec "Set du switch 7 à 0 active le mode automa
 Pour la partie 1, nous avons effectué les tests ci-dessous sur la carte. Tous les tests mentionnés
 ont été effectués avec succès.
 
-| Test effectué                                                                                   |
-|:------------------------------------------------------------------------------------------------|
-| Le programme affiche les 2 IDs attendus                                                         |
-| Pression de la Key0 réinitialise le générateur réinitialise le générateur à "Hello world!"      |
-| Pression sur Key2 affiche une lecture                                                           |
-| La lecture affiche les caractères dans le bon ordre ("Hello world!" comparé à "lleHow o!dlr")   |
-| Calcul d'intégrité est correct (somme des caractères + valeur de checksum)                      |
-| Maintient de la Key2 affiche la même lecture continuellement                                    |
-| Maintient de la Key2 + pression de la Key0 réinitialise le générateur à "Hello world!"          |
-| Maintient de la Key2 + pression de la Key1 affiche une lecture avec une string différente       |
-| Maintient de la Key2 + maintient de la Key1 affiche une seule lecture différente                |
-| Set du switch 7 à 1 active le mode automatique                                                  |
-| Affichage des lectures affiche les bonnes informations en cas de succès                         |
-| Affichage des lectures affiche les bonnes informations en cas d'erreur                          |
-| Le compteur des erreurs incrémente à chaque erreur                                              |
-| Incrém. de la fréq. est effectuée, et le nombre de strings différentes par seconde augmente     |
-| Changement de fréquence reflet le nombre d'erreur perçues                                       |
-| Décr. de la fréq., à partir de la valeur maximale jusqu'à minimale, est effectuée correctement  |
-| Set du switch 7 à 0 désactive le mode automatique                                               |
-| Pression de la Key0 lorsque le mode automatique est actif réinitialise le générateur            |
+| Test effectué                                                                                  |
+| :--------------------------------------------------------------------------------------------- |
+| Le programme affiche les 2 IDs attendus                                                        |
+| Pression de la Key0 réinitialise le générateur réinitialise le générateur à "Hello world!"     |
+| Pression sur Key2 affiche une lecture                                                          |
+| La lecture affiche les caractères dans le bon ordre ("Hello world!" comparé à "lleHow o!dlr")  |
+| Calcul d'intégrité est correct (somme des caractères + valeur de checksum)                     |
+| Maintient de la Key2 affiche la même lecture continuellement                                   |
+| Maintient de la Key2 + pression de la Key0 réinitialise le générateur à "Hello world!"         |
+| Maintient de la Key2 + pression de la Key1 affiche une lecture avec une string différente      |
+| Maintient de la Key2 + maintient de la Key1 affiche une seule lecture différente               |
+| Set du switch 7 à 1 active le mode automatique                                                 |
+| Affichage des lectures affiche les bonnes informations en cas de succès                        |
+| Affichage des lectures affiche les bonnes informations en cas d'erreur                         |
+| Le compteur des erreurs incrémente à chaque erreur                                             |
+| Incrém. de la fréq. est effectuée, et le nombre de strings différentes par seconde augmente    |
+| Changement de fréquence reflet le nombre d'erreur perçues                                      |
+| Décr. de la fréq., à partir de la valeur maximale jusqu'à minimale, est effectuée correctement |
+| Set du switch 7 à 0 désactive le mode automatique                                              |
+| Pression de la Key0 lorsque le mode automatique est actif réinitialise le générateur           |
 
 ## Partie 2
 
@@ -167,13 +167,13 @@ ont été effectués avec succès.
 
 Pour la partie 2, nous avons re-effectué les tests de la partie 1, ainsi que les tests suivants:
 
-| Test effectué                                                                                   |
-|:------------------------------------------------------------------------------------------------|
-| Set du switch 7 à 1 active le mode automatique                                                  |
-| Set du switch 0 à 1 active le mode fiable                                                       |
-| Fréquence plus basse (1Hz) génère des mots dans la bonne fréquence                              |
-| Pression sur Key2 affiche une lecture sans erreurs                                              |
-| Maintient sur Key2 affiche une lecture sans erreurs                                             |
-| Incrém. de la fréq. est effectuée, et le nombre de lectures incorrectes reste à 0               |
-| Set du switch 0 à 0 désactive le mode fiable                                                    |
-| Maintient de la Key2 affiche la même lecture continuellement                                    |
+| Test effectué                                                                     |
+| :-------------------------------------------------------------------------------- |
+| Set du switch 7 à 1 active le mode automatique                                    |
+| Set du switch 0 à 1 active le mode fiable                                         |
+| Fréquence plus basse (1Hz) génère des mots dans la bonne fréquence                |
+| Pression sur Key2 affiche une lecture sans erreurs                                |
+| Maintient sur Key2 affiche une lecture sans erreurs                               |
+| Incrém. de la fréq. est effectuée, et le nombre de lectures incorrectes reste à 0 |
+| Set du switch 0 à 0 désactive le mode fiable                                      |
+| Maintient de la Key2 affiche la même lecture continuellement                      |
