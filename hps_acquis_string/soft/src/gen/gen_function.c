@@ -88,3 +88,14 @@ void are_pw5_gen_read
 
 	*checksum = AXI_HPS_LABO_REG(ARE_PW5_CHECKSUM_ADDR);
 } /* are_pw5_gen_read */
+
+void are_pw5_gen_set_trusty
+(
+	char enabled
+)
+{
+	int prev_value = AXI_HPS_LABO_REG(ARE_PW5_TRUSTY_ADDR);
+	prev_value &= ~ARE_PW5_TRUSTY_MASK;
+	prev_value |= (enabled << ARE_PW5_TRUSTY_OFFSET) & ARE_PW5_TRUSTY_MASK;
+	AXI_HPS_LABO_REG(ARE_PW5_TRUSTY_ADDR) = prev_value;
+} /* are_pw5_gen_set_trusty */

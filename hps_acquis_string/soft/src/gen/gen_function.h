@@ -50,6 +50,10 @@
 #define ARE_PW5_MODE_MANUAL				(0b0 << ARE_PW5_MODE_OFFSET)
 #define ARE_PW5_MODE_AUTO				(0b1 << ARE_PW5_MODE_OFFSET)
 
+#define ARE_PW5_TRUSTY_ADDR				(0x1C)
+#define ARE_PW5_TRUSTY_OFFSET			(0x00)
+#define ARE_PW5_TRUSTY_MASK				ARE_PW5_TRUSTY_SWITCHES_MASK
+
 
 /***************************
  * Controls (WO)
@@ -116,6 +120,15 @@ void are_pw5_gen_read
 (
 	char  characters[ARE_PW5_CHARS_NUMBER],
 	char* checksum
+);
+
+/**
+ * Enables or disables the trustworthy reading mode (reliable reads)
+ * \param enable When 1, enables the reliable reads. Disables if 0
+ */
+void are_pw5_gen_set_trusty
+(
+	char enabled
 );
 
 
