@@ -149,6 +149,7 @@ ont été effectués avec succès.
 | Maintient de la Key2 + pression de la Key1 affiche une lecture avec une string différente      |
 | Maintient de la Key2 + maintient de la Key1 affiche une seule lecture différente               |
 | Set du switch 7 à 1 active le mode automatique                                                 |
+| Maintient de la Key2 + pression de la Key1 ne semble pas afficher une nouvelle string          |
 | Affichage des lectures affiche les bonnes informations en cas de succès                        |
 | Affichage des lectures affiche les bonnes informations en cas d'erreur                         |
 | Le compteur des erreurs incrémente à chaque erreur                                             |
@@ -176,4 +177,5 @@ Pour la partie 2, nous avons re-effectué les tests de la partie 1, ainsi que le
 | Maintient sur Key2 affiche une lecture sans erreurs                               |
 | Incrém. de la fréq. est effectuée, et le nombre de lectures incorrectes reste à 0 |
 | Set du switch 0 à 0 désactive le mode fiable                                      |
+| Set du switch 7 à 0 désactive le mode automatique                                              |
 | Maintient de la Key2 affiche la même lecture continuellement                      |
