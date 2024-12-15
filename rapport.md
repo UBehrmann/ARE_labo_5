@@ -88,7 +88,50 @@ interface intéragit avec l'espace mémoire, offset, `0x0001 0000` à `0x0001 FF
 
 Le code va lire l'ID du design standard à la première adresse de cet espace mémoire (offset `0x0`).
 
+Le déroulement boucle en permanence en attendant une entrée utilisateur. Chacun des boutons préssés
+ont un "handler" d'évènement qui leur est associé, tandis que les changements d'état des switches
+est analysé en comparant l'ancien état des switches avec l'actuel, et en effectuant les étapes
+associées à l'actuel état.
+
+Les opérations effectuées en changeant les switches sont simplement des affectations dans l'espace
+mémoire de l'interface. Les opérations effectuées en pressant les boutons, par contre, effectuent
+des vérifications, à l'exception de la pression sur le bouton 0:
+
+- La pression sur le bouton 1 va s'assurer que le mode de génération est manuel avant de demander
+  la génération d'une nouvelle chaîne de caractères
+
+- La pression sur le bouton 2 va demander une lecture fiable sur le switch associé est activé, et
+  va ensuite lire la chaîne de caractères et checksum sur la mémoire de l'interface. Le handler de
+  la pression va calculer l'intégrité de la valeur lue, et va s'occuper également d'afficher le
+  résultat de la lecture et, si besoin, d'incrémenter et afficher le compteur de lectures échouées
+
 ### Accès mémoire
+
+Lorsque le programme est lancé, on retrouve son état "initial" en mémoire. Toutes les entrées sont
+désactivées (les boutons sont active low), en on retrouve la chaîne de caractères initiale "Hello
+world!" en mémoire, avec son checksum.
+
+![État initial](imgs/initial_state.JPG)
+
+La pression sur le Key0 est détectée correctement, mais la chaîne de caractères ne change pas, car
+elle est déjà la chaîne initiale.
+
+![Key0 pressé](imgs/key0_press.JPG)
+
+Une pression (bouton avait déjà été relâché sur l'image) sur le Key1 demande la génération d'une
+nouvelle chaîne de caractères.
+
+![Key1 pressé et relâché](imgs/key1_press.JPG)
+
+On active le mode automatique à la fréquence la plus haute, avec le mode fiable. Tant que le bouton
+Key2 n'est pas pressé, bouton lequel effectue la lecture de la chaîne de caractères, le buffer de
+la chaîne de caractères à lire est vide.
+
+![Chaîne vide](imgs/max_freq_auto_trusty_noread.JPG)
+
+Dès qu'on appuie sur le Key2, la chaîne de caractères apparaît, et la lecture est fiable.
+
+![Lecture fiable](imgs/max_freq_auto_trusty_read.JPG)
 
 
 # Tests
@@ -177,5 +220,5 @@ Pour la partie 2, nous avons re-effectué les tests de la partie 1, ainsi que le
 | Maintient sur Key2 affiche une lecture sans erreurs                               |
 | Incrém. de la fréq. est effectuée, et le nombre de lectures incorrectes reste à 0 |
 | Set du switch 0 à 0 désactive le mode fiable                                      |
-| Set du switch 7 à 0 désactive le mode automatique                                              |
+| Set du switch 7 à 0 désactive le mode automatique                                 |
 | Maintient de la Key2 affiche la même lecture continuellement                      |
