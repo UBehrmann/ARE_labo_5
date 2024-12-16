@@ -14,6 +14,10 @@
 - [Analyse](#analyse)
   - [Plan d’adressage](#plan-dadressage)
   - [Schéma bloc de l’interface](#schéma-bloc-de-linterface)
+  - [Chronogramme de fonctionnement](#chronogramme-de-fonctionnement)
+    - [Fonctionnement manuel](#fonctionnement-manuel)
+    - [Fonctionnement automatique non-fiable](#fonctionnement-automatique-non-fiable)
+    - [Fonctionnement automatique fiable](#fonctionnement-automatique-fiable)
   - [MSS](#mss)
   - [Code](#code)
     - [Accès mémoire](#accès-mémoire)
@@ -76,7 +80,27 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 
 ## Schéma bloc de l’interface
 
+## Chronogramme de fonctionnement
+
+### Fonctionnement manuel
+
+Pour le fonctionnement manuel, le CPU envoie des commandes à l'interface pour reseter l'interface, générer les prochains caractères ou lire les caractères. 
+
+![Chronogramme manuel](/imgs/chrono_manuel.png)
+
+### Fonctionnement automatique non-fiable
+
+Dans le fonctionnement automatique non-fiable, l'interface génère les caractères automatiquement selon la fréquence définie ('delay_gen'). Le CPU peut lire les caractères à tout moment, mais n'a aucune garantie que les prochaines charactères sont de la même séquence que les précédents. Seulement avec vérification du checksum, le CPU peut savoir si les caractères lus sont corrects.
+
+![Chronogramme auto non-fiable](/imgs/chrono_auto_non_fiable.png)
+
+### Fonctionnement automatique fiable
+
+![Chronogramme auto fiable](/imgs/chrono_auto_fiable.png)
+
 ## MSS
+
+Pour la partie 2, nous avons ajouté une MSS qui permet de cadencer la sauvegarde et libération de la lecture des caractères. Cette MSS est composée de 3 états: `WAIT_FOR_SAVE`, `SAVE` et `SAVE_DONE`. Lorsque l'interface est en mode automatique, la MSS attend qu'une sauvegarde soit demandée. Lorsque la sauvegarde est demandée, l'interface sauvegarde les caractères dans un registre. Au prochain cycle d'horloge, l'interface informe le CPU via le registre `status(0)` que la sauvegarde est terminée.  
 
 ![MSS](/imgs/mss.png)
 
