@@ -72,8 +72,7 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 | 0x2C             | [31..24] char_13; [23..16] char_14; | reserved                          |
 |                  | [15..8] char_15; [7..0] char_16     |                                   |
 | 0x30             | [31..8] "0..0"; [7..0] checksum     | reserved                          |
-| 0x34             | [31..0] "0..0"                      | reserved                          |
-| 0x40 ... 0xFFFC  | not used                            | not used                          |
+| 0x34 ... 0xFFFC  | [31..0] "0..0"                      | reserved                          |
 
 ## Schéma bloc de l’interface
 
