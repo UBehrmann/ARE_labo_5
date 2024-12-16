@@ -182,8 +182,20 @@ BEGIN
   -- Read register process
 
   read_decoder_p : PROCESS (
-    avl_reset_i,
-    avl_clk_i
+    avl_read_i,
+    avl_address_i,
+    boutton_s,
+    switches_s,
+    led_reg_s,
+    status_s,
+    mode_gen_s,
+    delay_gen_s,
+    reliable_s,
+    to_send_chars_0_s,
+    to_send_chars_1_s,
+    to_send_chars_2_s,
+    to_send_chars_3_s,
+    to_send_checksum_s
     )
   BEGIN
     readdatavalid_next_s <= '0'; --valeur par defaut
@@ -376,7 +388,8 @@ BEGIN
   END PROCESS fsm_reg;
 
   dec_fut_sort : PROCESS (
-    e_pres
+    e_pres,
+    save_char_s
     ) IS
   BEGIN
     -- Default values for generated signal
