@@ -139,6 +139,7 @@ ARCHITECTURE rtl OF avl_user_interface IS
   SIGNAL to_send_checksum_s : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
   --| Types |----------------------------------------------------------------
+  
   TYPE state_t IS (
     --General state
     WAIT_FOR_SAVE,
@@ -238,6 +239,7 @@ BEGIN
   END PROCESS;
 
   -- Read register process
+
   read_register_p : PROCESS (
     avl_reset_i,
     avl_clk_i
@@ -314,6 +316,7 @@ BEGIN
   auto_o <= mode_gen_s;
   delay_o <= delay_gen_s;
 
+  -- Group chars
   chars_0_s <= char_1_i & char_2_i & char_3_i & char_4_i;
   chars_1_s <= char_5_i & char_6_i & char_7_i & char_8_i;
   chars_2_s <= char_9_i & char_10_i & char_11_i & char_12_i;
@@ -321,6 +324,7 @@ BEGIN
 
   checksum_s <= checksum_i;
 
+  -- Select chars to send
   to_send_chars_0_s <= chars_0_s WHEN reliable_s = '0' ELSE
     reg_chars_0_s;
   to_send_chars_1_s <= chars_1_s WHEN reliable_s = '0' ELSE
@@ -334,7 +338,7 @@ BEGIN
   status_s <= reliable_s & char_rdy_s WHEN reliable_s = '1' ELSE
     "00";
 
-  -- Sauvegarde les valeurs
+  -- Save chars
   sync_register_p : PROCESS (
     avl_reset_i,
     avl_clk_i

@@ -10,10 +10,10 @@ z2
 cModel Technology
 Z0 d/media/sf_Partage_VM_Reds/ARE/ARE_labo_5/hps_acquis_string/hard/sim
 T_opt
-!s110 1733474220
-VRm7XQe^6`O<bVc@`>cLi<0
+!s110 1734355573
+VGb=ZCnYm5nc1aXC>J6XAb2
 04 18 10 work avalon_console_sim behavioral 1
-=1-000ae431a4f1-6752b7ab-e5d05-b84
+=1-000ae431a4f1-67602a75-29a06-b89
 o-quiet -auto_acc_if_foreign -work work +acc
 tCvgOpt 0
 n@_opt
@@ -24,7 +24,7 @@ Z2 DPx4 ieee 9 math_real 0 22 gNk<PdFJ<XNPcfef`f?Z81
 Z3 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
 Z4 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
 Z5 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
-!i122 2
+!i122 5
 R0
 Z6 8../src_tb/avalon_console_sim.vhd
 Z7 F../src_tb/avalon_console_sim.vhd
@@ -34,9 +34,9 @@ VB^^Kfb@JG3h]D[UCQ>U6;0
 !s100 >mf0n65QYkDhB=TP9eJRi3
 Z8 OL;C;2020.1_1;71
 33
-Z9 !s110 1733474219
+Z9 !s110 1734355572
 !i10b 1
-Z10 !s108 1733474219.000000
+Z10 !s108 1734355572.000000
 Z11 !s90 -reportprogress|300|-2008|-work|work|../src_tb/avalon_console_sim.vhd|
 Z12 !s107 ../src_tb/avalon_console_sim.vhd|
 !i113 0
@@ -50,7 +50,7 @@ R3
 R4
 R5
 DEx4 work 18 avalon_console_sim 0 22 B^^Kfb@JG3h]D[UCQ>U6;0
-!i122 2
+!i122 5
 l138
 L25 198
 VNXA?bUNDAV;0X>D@mlZPE3
@@ -66,11 +66,11 @@ R12
 R13
 R14
 Eavl_user_interface
-Z17 w1732889874
+Z17 w1734354279
 R3
 R4
 R5
-!i122 0
+!i122 3
 R0
 Z18 8../src/avl_user_interface.vhd
 Z19 F../src/avl_user_interface.vhd
@@ -93,11 +93,11 @@ R3
 R4
 R5
 R16
-!i122 0
-l134
-L76 228
-Va>0R2WH1hTF@j3:1g]3UB3
-!s100 FlIbAU6lC=o@Y8]FIA<]10
+!i122 3
+l151
+L76 337
+V:MJ_l6jl080MioUY4X18A3
+!s100 J5VjLn1_<Fg8?RXj3B[f50
 R8
 33
 R9
@@ -113,7 +113,7 @@ Z23 w1732715028
 R3
 R4
 R5
-!i122 1
+!i122 4
 R0
 Z24 8../src/generateur_strings.vhd
 Z25 F../src/generateur_strings.vhd
@@ -136,7 +136,7 @@ R3
 R4
 R5
 R15
-!i122 1
+!i122 4
 l127
 L61 175
 VKNRj=mcL09Nl;MADCLPOc3

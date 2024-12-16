@@ -14,6 +14,7 @@
 - [Analyse](#analyse)
   - [Plan d’adressage](#plan-dadressage)
   - [Schéma bloc de l’interface](#schéma-bloc-de-linterface)
+  - [MSS](#mss)
   - [Code](#code)
     - [Accès mémoire](#accès-mémoire)
 - [Tests](#tests)
@@ -23,31 +24,30 @@
   - [Partie 2](#partie-2)
     - [Simulation](#simulation-1)
     - [Tests sur la carte](#tests-sur-la-carte-1)
+- [Conclusion](#conclusion)
 
 # Introduction
 
 Dans ce laboratoire, nous allons concevoir une interface permettant d'effectuer la lecture de
 différentes chaînes de caractères générées par la board DE1-SoC. La génération de ces dernières
-peuvent être effecutées à différentes fréquences (1Hz, 1KHz, 100KHz, 1MHz), et de façon manuelle ou
+peuvent être effectués à différentes fréquences (1Hz, 1KHz, 100KHz, 1MHz), et de façon manuelle ou
 automatique.
 
 Lors de la première partie, les lectures seront effectuées de façon non-fiable, ce qui
 nous permettra de remarquer l'accès aux différents blocs de la chaîne alors que l'interface est en
 train de remplacer les valeurs des blocks. La deuxième partie nous permettra d'implémenter un
-méchanisme permettant d'éviter les lectures éronnées.
+mécanisme permettant d'éviter les lectures erronées.
 
 Afin de vérifier si une lecture correcte a eu lieu, un byte de checksum est utilisé. La lecture est
 considérée comme correcte lorsque la somme des valeurs ASCII de chacun des caractères lus plus le
 byte de checksum, le tout modulo 256, vaut 0.
 
-Si une lecture n'a pas été éffectuée correctement, un message à l'écran s'affiche, et le nombre de
+Si une lecture n'a pas été effectuée correctement, un message à l'écran s'affiche, et le nombre de
 fois qu'une lecture erronée a été faite depuis le lancement du programme est également affiché.
-
 
 # Analyse
 
 ## Plan d’adressage
-
 
 | Address (offset) | Read                                | Write                             |
 | ---------------- | ----------------------------------- | --------------------------------- |
@@ -75,6 +75,9 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 
 ## Schéma bloc de l’interface
 
+## MSS
+
+![MSS](/imgs/mss.png)
 
 ## Code
 
@@ -84,54 +87,11 @@ adapté avec les nouvelles adresses et masques à utiliser.
 L'interface utilisant le bus Avalon, les adresses qui nous intéressent commencent à `0xFF20 0000`,
 soit l'adresse de base pour l'AXI lightweight HPS-to-FPGA. La zone mémoire pour notre interface
 se trouve à l'offset `0x0001 0000`, et nous disposons de 64KiB de mémoire. De ce fait, notre
-interface intéragit avec l'espace mémoire, offset, `0x0001 0000` à `0x0001 FFFF`.
+interface interagit avec l'espace mémoire, offset, `0x0001 0000` à `0x0001 FFFF`.
 
 Le code va lire l'ID du design standard à la première adresse de cet espace mémoire (offset `0x0`).
 
-Le déroulement boucle en permanence en attendant une entrée utilisateur. Chacun des boutons préssés
-ont un "handler" d'évènement qui leur est associé, tandis que les changements d'état des switches
-est analysé en comparant l'ancien état des switches avec l'actuel, et en effectuant les étapes
-associées à l'actuel état.
-
-Les opérations effectuées en changeant les switches sont simplement des affectations dans l'espace
-mémoire de l'interface. Les opérations effectuées en pressant les boutons, par contre, effectuent
-des vérifications, à l'exception de la pression sur le bouton 0:
-
-- La pression sur le bouton 1 va s'assurer que le mode de génération est manuel avant de demander
-  la génération d'une nouvelle chaîne de caractères
-
-- La pression sur le bouton 2 va demander une lecture fiable sur le switch associé est activé, et
-  va ensuite lire la chaîne de caractères et checksum sur la mémoire de l'interface. Le handler de
-  la pression va calculer l'intégrité de la valeur lue, et va s'occuper également d'afficher le
-  résultat de la lecture et, si besoin, d'incrémenter et afficher le compteur de lectures échouées
-
 ### Accès mémoire
-
-Lorsque le programme est lancé, on retrouve son état "initial" en mémoire. Toutes les entrées sont
-désactivées (les boutons sont active low), en on retrouve la chaîne de caractères initiale "Hello
-world!" en mémoire, avec son checksum.
-
-![État initial](imgs/initial_state.JPG)
-
-La pression sur le Key0 est détectée correctement, mais la chaîne de caractères ne change pas, car
-elle est déjà la chaîne initiale.
-
-![Key0 pressé](imgs/key0_press.JPG)
-
-Une pression (bouton avait déjà été relâché sur l'image) sur le Key1 demande la génération d'une
-nouvelle chaîne de caractères.
-
-![Key1 pressé et relâché](imgs/key1_press.JPG)
-
-On active le mode automatique à la fréquence la plus haute, avec le mode fiable. Tant que le bouton
-Key2 n'est pas pressé, bouton lequel effectue la lecture de la chaîne de caractères, le buffer de
-la chaîne de caractères à lire est vide.
-
-![Chaîne vide](imgs/max_freq_auto_trusty_noread.JPG)
-
-Dès qu'on appuie sur le Key2, la chaîne de caractères apparaît, et la lecture est fiable.
-
-![Lecture fiable](imgs/max_freq_auto_trusty_read.JPG)
 
 
 # Tests
@@ -151,12 +111,13 @@ Pour la partie 1, nous avons effectué en premier des tests avec le test bench f
 | `Read 12`      | Lecture des 10 LEDs                            |
 | `Write 16 17`  | Ecriture dans new_char [4] et init_char [0]    |
 | `Read 16`      | Lecture du status                              |
-| `Write 20 16`  | Ecriture dans mode_gen [4]  et delay_gen [1-0] |
-| `Read 20`      | Lecture des char 1 à 4                         |
-| `Read 32`      | Lecture des char 5 à 8                         |
-| `Read 36`      | Lecture des char 9 à 12                        |
-| `Read 40`      | Lecture des char 13 à 16                       |
-| `Read 44`      | Lecture du checksum [7-0]                      |
+| `Write 20 16`  | Ecriture dans mode_gen [4] et delay_gen [1-0]  |
+| `Read 20`      | Lecture du mode_gen [4] et de delay_gen [1-0]  |
+| `Read 32`      | Lecture des char 1 à 4                         |
+| `Read 36`      | Lecture des char 5 à 8                         |
+| `Read 40`      | Lecture des char 9 à 12                        |
+| `Read 44`      | Lecture des char 13 à 16                       |
+| `Read 48`      | Lecture du checksum [7-0] 48                   |
 
 Ici, un screenshot de l'interface de simulation:
 
@@ -170,6 +131,7 @@ Et les chronogrammes:
 
 ![Chronogramme 3](/imgs/p1_test1_3.png)
 
+Cette simulation nous a permis de vérifier que l'interface réagite correctement aux commandes du CPU. 
 
 ### Tests sur la carte
 
@@ -192,7 +154,6 @@ ont été effectués avec succès.
 | Maintient de la Key2 + pression de la Key1 affiche une lecture avec une string différente      |
 | Maintient de la Key2 + maintient de la Key1 affiche une seule lecture différente               |
 | Set du switch 7 à 1 active le mode automatique                                                 |
-| Maintient de la Key2 + pression de la Key1 ne semble pas afficher une nouvelle string          |
 | Affichage des lectures affiche les bonnes informations en cas de succès                        |
 | Affichage des lectures affiche les bonnes informations en cas d'erreur                         |
 | Le compteur des erreurs incrémente à chaque erreur                                             |
@@ -206,6 +167,39 @@ ont été effectués avec succès.
 
 ### Simulation
 
+Pour la simulation de la partie 2, nous avons effectué les mêmes tests que pour la partie 1, mais en ajoutant les tests pour les nouvelles fonctionnalités. Voici les commandes utilisées:
+
+| Commande       | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `Read 0`       | Lecture de l'interface user ID                 |
+| `Read 4`       | Lecture des 4 buttons                          |
+| `Read 8`       | Lecture des 10 switches                        |
+| `Write 12 682` | Ecriture de 682 sur les 10 LEDs (0b1010101010) |
+| `Read 12`      | Lecture des 10 LEDs                            |
+| `Write 16 17`  | Ecriture dans new_char [4] et init_char [0]    |
+| `Read 16`      | Lecture du status                              |
+| `Write 20 16`  | Ecriture dans mode_gen [4] et delay_gen [1-0]  |
+| `Read 20`      | Lecture du mode_gen [4] et de delay_gen [1-0]  |
+| `Write 24 1`   | Ecriture dans save_char [0]                    |
+| `Write 28 1`   | Ecriture dans reliable [0]                     |
+| `Read 28`      | Lecture de reliable [0]                        |
+| `Read 32`      | Lecture des char 1 à 4                         |
+| `Read 36`      | Lecture des char 5 à 8                         |
+| `Read 40`      | Lecture des char 9 à 12                        |
+| `Read 44`      | Lecture des char 13 à 16                       |
+| `Read 48`      | Lecture du checksum [7-0] 48                   |
+
+Ici, un screenshot de l'interface de simulation:
+
+![Simulation partie 2](/imgs/p2_test1_0.png)
+
+Et les chronogrammes:
+
+![Chronogramme 1 partie 2](/imgs/p2_test1_1.png)
+
+![Chronogramme 2 partie 2](/imgs/p2_test1_2.png)
+
+![Chronogramme 3 partie 2](/imgs/p2_test1_3.png)
 
 ### Tests sur la carte
 
@@ -220,5 +214,10 @@ Pour la partie 2, nous avons re-effectué les tests de la partie 1, ainsi que le
 | Maintient sur Key2 affiche une lecture sans erreurs                               |
 | Incrém. de la fréq. est effectuée, et le nombre de lectures incorrectes reste à 0 |
 | Set du switch 0 à 0 désactive le mode fiable                                      |
-| Set du switch 7 à 0 désactive le mode automatique                                 |
 | Maintient de la Key2 affiche la même lecture continuellement                      |
+
+# Conclusion
+
+Dans ce laboratoire, nous avons pu implémenter une interface qui peut lire des chaînes de caractères générées d'une manière fiable ou non-fiable. Nous avons pu tester cette interface en simulation et sur la carte. Les tests ont été effectués avec succès, et nous avons pu vérifier que l'interface fonctionne correctement.
+
+Nous avons aussi fait contrôlé la partie 1 à Anthony Convers le 6. décembre et la partie 2 à M. Messerli le 13. décembre.
