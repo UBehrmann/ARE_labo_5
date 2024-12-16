@@ -34,20 +34,22 @@ peuvent être effectués à différentes fréquences (1Hz, 1KHz, 100KHz, 1MHz), 
 automatique.
 
 Lors de la première partie, les lectures seront effectuées de façon non-fiable, ce qui
-nous permettra de remarquer l'accès aux différents blocs de la chaîne alors que l'interface est en
-train de remplacer les valeurs des blocks. La deuxième partie nous permettra d'implémenter un
-mécanisme permettant d'éviter les lectures erronées.
+permettra l'accès aux différents blocs de la chaîne alors que l'interface est en train de remplacer
+les valeurs des blocks, et de remarquer que des erreurs de lecture risque d'arriver. La deuxième
+partie nous permettra d'implémenter un méchanisme permettant d'éviter ces lectures éronnées.
 
 Afin de vérifier si une lecture correcte a eu lieu, un byte de checksum est utilisé. La lecture est
 considérée comme correcte lorsque la somme des valeurs ASCII de chacun des caractères lus plus le
 byte de checksum, le tout modulo 256, vaut 0.
 
-Si une lecture n'a pas été effectuée correctement, un message à l'écran s'affiche, et le nombre de
+Si une lecture n'a pas été éffectuée correctement, un message à l'écran s'affiche, et le nombre de
 fois qu'une lecture erronée a été faite depuis le lancement du programme est également affiché.
+
 
 # Analyse
 
 ## Plan d’adressage
+
 
 | Address (offset) | Read                                | Write                             |
 | ---------------- | ----------------------------------- | --------------------------------- |
@@ -55,12 +57,12 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 | 0x04             | [31..4] "0..0"; [3..0] buttons      | reserved                          |
 | 0x08             | [31..10] "0..0"; [9..0] switches    | reserved                          |
 | 0x0C             | [31..10] "0..0"; [9..0] leds        | [31..10] reserved; [9..0] leds    |
-| 0x10             | [31..2] "0..0"; [1..0] status       | [31..5] reserved; [4] new_char;   |
+| 0x10             | [31..2] "0..0"; [1..0] status       | [31..5] reserved; [4] new_char    |
 |                  |                                     | [3..1] reserved; [0] init_char    |
-| 0x14             | [31..5] "0..0"; [4] mode_gen;       | [31..5] reserved; [4] mode_gen;   |
+| 0x14             | [31..5] "0..0"; [4] mode_gen;       | [31..5] reserved; [4] mode_gen    |
 |                  | [3..2] "0..0"; [1..0] delay_gen     | [3..2] reserved; [1..0] delay_gen |
-| 0x18             | reserved                            | [31..1] reserved; [0] save_char   |
-| 0x1C             | [31..1] reserved; [0] reliable      | [31..1] reserved; [0] reliable    |
+| 0x18             | [31..0] "0..0"                      | [31..1] reserved; [0] save_char   |
+| 0x1C             | [31..1] "0..0"; [0] reliable        | [31..1] reserved; [0] reliable    |
 | 0x20             | [31..24] char_2; [23..16] char_3;   | reserved                          |
 |                  | [15..8] char_4; [7..0] char_4       |                                   |
 | 0x24             | [31..24] char_5; [23..16] char_6;   | reserved                          |
@@ -70,8 +72,8 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 | 0x2C             | [31..24] char_13; [23..16] char_14; | reserved                          |
 |                  | [15..8] char_15; [7..0] char_16     |                                   |
 | 0x30             | [31..8] "0..0"; [7..0] checksum     | reserved                          |
-| 0x34             | reserved                            | reserved                          |
-| 0x40..0xFFC      | not used                            | not used                          |
+| 0x34             | [31..0] "0..0"                      | reserved                          |
+| 0x40 ... 0xFFFC  | not used                            | not used                          |
 
 ## Schéma bloc de l’interface
 
@@ -100,7 +102,7 @@ Le code va lire l'ID du design standard à la première adresse de cet espace m�
 
 ### Simulation
 
-Pour la partie 1, nous avons effectué en premier des tests avec le test bench fourni. Nous avons créé une série de commande que le CPU peut envoyer à l'interface. Nous avons testé toutes les lectures et écritures décrites dans la description du laboratoire.
+Pour la partie 1, nous avons effectué en premier des tests avec le test bench fourni. Nous avons créé une série de commandes que le CPU peut envoyer à l'interface. Nous avons testé toutes les lectures et écritures décrites dans la description du laboratoire.
 
 | Commande       | Description                                    |
 | -------------- | ---------------------------------------------- |
@@ -135,7 +137,7 @@ Cette simulation nous a permis de vérifier que l'interface réagite correctemen
 
 ### Tests sur la carte
 
-> **NOTE: ** Les tests ont été effectués de façon séquentielle. Du coup, si nous effectuons le
+> **NOTE:** Les tests ont été effectués de façon séquentielle. Du coup, si nous effectuons le
 test "Set du switch 7 à 1 active le mode automatique", alors le mode automatique reste actif
 jusqu'à-ce qu'on le désactive avec "Set du switch 7 à 0 active le mode automatique".
 
