@@ -14,6 +14,10 @@
 - [Analyse](#analyse)
   - [Plan d’adressage](#plan-dadressage)
   - [Schéma bloc de l’interface](#schéma-bloc-de-linterface)
+    - [Sauvegarde des caractères](#sauvegarde-des-caractères)
+    - [Gestion d'écriture](#gestion-décriture)
+    - [Synch I/O](#synch-io)
+    - [Gestion de lecture](#gestion-de-lecture)
   - [Chronogramme de fonctionnement](#chronogramme-de-fonctionnement)
     - [Fonctionnement manuel](#fonctionnement-manuel)
     - [Fonctionnement automatique non-fiable](#fonctionnement-automatique-non-fiable)
@@ -29,6 +33,7 @@
     - [Simulation](#simulation-1)
     - [Tests sur la carte](#tests-sur-la-carte-1)
 - [Conclusion](#conclusion)
+- [Code](#code-1)
 
 # Introduction
 
@@ -80,6 +85,85 @@ fois qu'une lecture erronée a été faite depuis le lancement du programme est 
 
 ## Schéma bloc de l’interface
 
+![Schéma bloc de l'interface](/imgs/schema_bloc.drawio.svg)
+
+
+### Sauvegarde des caractères
+
+Ce bloc sert simplement à sauvegarder les caractères automatiquement générés reçus en entrée. La
+seule entrée synchrone utilisée dans ce bloc est `save_s`, sortant de la MSS.
+
+![Schéma du bloc "Sauvegarde des caractères"](/imgs/schema_save_chars.drawio.svg)
+
+### Gestion d'écriture
+
+Ce bloc sert à sauvegarder les données à écrire dans des différents registres. L'idée c'est qu'il s'en
+charge et du "décodage d'adresses", et de l'extraction des données venant du bus Avalon. De ce fait,
+au lieu de répéter le même schéma que pour le bloc "Sauvegarde des caractères", car ce bloc est
+également compris de registres, on donne ici les équations pour l'enable de chacun des registres.
+
+Pour rappel, les entrées synchrones dans ce bloc sont: `avl_writedata_i`, `avl_address_i`, et
+`avl_write_i`.
+
+- `init_char_s`: `avl_write_i AND avl_writedata_i(0) AND (avl_address_i = 4)`
+
+- `new_char_s`: `avl_write_i AND avl_writedata_i(4) AND (avl_address_i = 4)`
+
+- `save_char_s`: `avl_write_i AND avl_writedata_i(0) AND (avl_address_i = 6)`
+
+- `mode_gen_s`: `avl_write_i AND avl_writedata_i(4) AND (avl_address_i = 5)`
+
+- `led_reg_s`: `avl_writedata_i(9 downto 0)` si `avl_write_i AND (avl_address_i = 3)`
+
+- `delay_gen_s`: `avl_writedata_i(1 downto 0)` si `avl_write_i AND (avl_address_i = 5)`
+
+- `reliable_s`: `avl_write_i AND avl_writedata_i(0) AND (avl_address_i = 7)`
+
+
+### Synch I/O
+
+Tout comme les 2 précédents blocs, ce bloc permet également simplement de sauvegarder des données
+dans des registres. Toutefois les registres dans ce bloc n'ont pas d'enable, et se content de
+synchroniser les 2 entrées à chaque coup de clock.
+
+
+### Gestion de lecture
+
+Ce bloc agit comme un multiplexeur pour savoir quoi enregistrer dans le signal utilisé pour sortie
+les données lues par le CPU. On utilise l'adresse reçue comme bits de sélection; 14 au total. Du
+coup, dans cette section, nous décrivons ce qu'on écrit dans le signal dans chacun des cas.
+
+Ce bloc aurait pu être amélioré, en utilisant simplement les 4 least-significant bits de l'adresse,
+car nous n'avons que 13 adresses différentes à affecter, et on pourrait vérifier qu'on se trouve
+bien au tout début de l'espace mémoire de l'interface (`avl_address_i(13 downto 4) = "00...0"`)
+avant d'affecter le signal utilisé en sortie.
+
+- `avl_address_i = 0`: ID d'interface (0x12345678)
+
+- `avl_address_i = 1`: état actuel des boutons
+
+- `avl_address_i = 2`: état actuel des switches
+
+- `avl_address_i = 3`: état actuel des LEDs
+
+- `avl_address_i = 5`: status de l'interface
+
+- `avl_address_i = 6`: concaténation du mode de génération (bit 4) avec le délai de génération (bits 1 à 0)
+
+- `avl_address_i = 7`: informe si la lecture est fiable
+
+- `avl_address_i = 8`: premier buffer de 4 caractères
+
+- `avl_address_i = 9`: deuxième buffer de 4 caractères
+
+- `avl_address_i = 10`: troisième buffer de 4 caractères
+
+- `avl_address_i = 11`: quatrième buffer de 4 caractères
+
+- `avl_address_i = 12`: checksum (bits 7 à 0)
+
+- Autre valeur: `"00...0"`
+
 ## Chronogramme de fonctionnement
 
 ### Fonctionnement manuel
@@ -117,6 +201,32 @@ interface interagit avec l'espace mémoire, offset, `0x0001 0000` à `0x0001 FFF
 Le code va lire l'ID du design standard à la première adresse de cet espace mémoire (offset `0x0`).
 
 ### Accès mémoire
+
+Lorsqu'on lance l'application, on retrouve la mémoire à l'état ci-dessous. L'ID de l'interface y
+est visible, la valeur des keys est lu (en active low), et on y retrouve également la première
+chaîne de caractères lue. Dans notre cas, "Hello world!".
+
+![État initial](/imgs/initial_state.JPG)
+
+La pression sur le Key0, qui réinitialise le générateur, n'a pas d'impacte sur la mémoire, car la
+chaîne de caractères qu'on y retrouve est déjà la chaîne de caractères initiale.
+
+![Pression sur le Key0](/imgs/key0_press.JPG)
+
+Lorsqu'on appuie sur le Key1, on remarque qu'une nouvelle chaîne de caractères est générée.
+
+![Pression sur le Key1](/imgs/key1_press.JPG)
+
+On laisse tourner l'application dans le mode automatique, avec la fréquence maximale. Tant qu'on
+n'appuie pas sur le Key2, utilisé pour effectuer la lecture des chaînes de caractères, le buffer
+de caractères qu'on retrouve en mémoire est rempli de zéros.
+
+![Mode automatique, fréquence maximale, avec lecture fiable, avant demande de lecture](/imgs/max_freq_auto_trusty_noread.JPG)
+
+Dès qu'on appuie sur le Key2, la demande de lecture fiable est envoyée à l'interface, et la chaîne
+peut être retrouvée peu après en mémoire.
+
+![Mode automatique, fréquence maximale, avec lecture fiable, lecture](/imgs/max_freq_auto_trusty_read.JPG)
 
 
 # Tests
@@ -246,3 +356,5 @@ Pour la partie 2, nous avons re-effectué les tests de la partie 1, ainsi que le
 Dans ce laboratoire, nous avons pu implémenter une interface qui peut lire des chaînes de caractères générées d'une manière fiable ou non-fiable. Nous avons pu tester cette interface en simulation et sur la carte. Les tests ont été effectués avec succès, et nous avons pu vérifier que l'interface fonctionne correctement.
 
 Nous avons aussi fait contrôlé la partie 1 à Anthony Convers le 6. décembre et la partie 2 à M. Messerli le 13. décembre.
+
+# Code
