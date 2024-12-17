@@ -7,7 +7,7 @@
  * Reconfigurable Embedded Digital Systems
  *****************************************************************************************
  *
- * File                 : io_function.h
+ * File                 : io_function.c
  * Author               : Pedro Alves da Silva
  * Date                 : 29 november 2024
  *
